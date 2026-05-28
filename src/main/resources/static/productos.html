@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+     <script src="/utilesVista.js"></script>
+    <div class="container">
+        <h1>Ingreso de Productos</h1>
+
+        <form id="formBuscar" method="POST">
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" >
+               
+            </div>
+             <div class="form-group">
+                 <button type="submit" id="btnBuscar">Buscar</button>
+             </div>
+             
+        </form>
+
+        <form id="formGuardar" method="POST">
+            <div class="form-group">
+                <label for="precio">Precio:</label>
+                <input type="number" id="precio" name="precio" required >
+            </div>
+            <div class="form-group">
+                <label for="unidades">Unidades:</label>
+                <input type="number" id="unidades" name="unidades" required >
+            </div>
+            <div class="form-group">
+                <label> Proveedor:</label>
+                 <div id="listaProveedores"></div>
+            </div>
+            <button type="submit" id="btnGuardar"  >Guardar</button>
+        </form>
+
+        <div id="tablaProductos"></div>
+    </div>
+
+    <script type="module">
+        const formBuscar       = document.getElementById('formBuscar');
+        const formGuardar      = document.getElementById('formGuardar');
+        const nombre           = document.getElementById('nombre');
+        const precio           = document.getElementById('precio');
+        const btnGuardar       = document.getElementById('btnGuardar');
+        const unidades         = document.getElementById('unidades');
+        const tablaProductos   = document.getElementById('tablaProductos');
+        const listaProveedores = document.getElementById('listaProveedores');
+
+        import CommandDispatcher from '/CommandDispatcher.js';
+
+        const view = CommandDispatcher.registerView('productos', {
+            urlInicio: '/productos/vistaConectada'
+        });
+
+        view.handler('productos', function(productos) {
+            tablaProductos.innerHTML = crearTablaDesdeJson(productos);
+        });
+        view.handler('proveedores', function(proveedores) {
+            const html = crearListaDesdeJson({
+                data: proveedores,
+                campoMostrar: 'nombre',
+                multiple: false,
+                mostrarOpcionInicial: true,
+                id: 'proveedor'
+            });
+            listaProveedores.innerHTML = html;
+        });
+        view.handler('producto', function(producto) {
+            precio.value = producto.precio;
+            unidades.value = producto.unidades;
+            seleccionarPorTexto('proveedor', producto.proveedor);
+        });
+        view.handler('habilitarIngreso', function(habilitar) {
+            precio.value = '';
+            unidades.value = '';
+            document.getElementById('proveedor').value = -1;
+            precio.disabled = !habilitar;
+            unidades.disabled = !habilitar;
+            btnGuardar.disabled = !habilitar;
+            document.getElementById('proveedor').disabled = !habilitar;
+        });
+        view.handler('limpiarEntradas', function() {
+            nombre.value = '';
+            unidades.value = '';
+            precio.value = '';
+            document.getElementById('proveedor').value = -1;
+        });
+        view.handler('mensaje', function(mensaje) {
+            mostrarMensaje(mensaje);
+        });
+
+        formBuscar.addEventListener('submit', function(e) {
+            e.preventDefault();
+            CommandDispatcher.submit('/productos/ingresarNombre', serializarFormulario('formBuscar'));
+        });
+        formGuardar.addEventListener('submit', function(e) {
+            e.preventDefault();
+            CommandDispatcher.submit('/productos/guardarProducto', serializarFormulario('formGuardar'));
+        });
+
+        CommandDispatcher.startView(view);
+    </script>
+</body>
+</html>

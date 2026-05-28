@@ -1,0 +1,94 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 21 ene. 2025, 18:26:35
+    Author     : PC
+*/
+
+  body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .factura-info, .lineas-info, .acciones, .botones {
+            margin-bottom: 20px;
+        }
+
+        .factura-info div, .lineas-info div, .acciones div, .botones div {
+            margin-bottom: 10px;
+        }
+
+        .factura-info label, .lineas-info label, .acciones label {
+            font-weight: bold;
+        }
+
+        .total {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .acciones input, .acciones button, .botones button {
+            padding: 8px;
+            margin: 5px;
+        }
+
+        .acciones input {
+            width: 150px;
+        }
+
+        .acciones button, .botones button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .acciones button:hover, .botones button:hover {
+            background-color: #45a049;
+        }
+
+        /* Estilo de los botones al final */
+        .botones {
+            display: flex;
+            justify-content: center;
+        }
+
+        .botones button {
+            width: 150px;
+        }
+
+        .botones .descartar {
+            background-color: #f44336;
+        }
+
+        .botones .descartar:hover {
+            background-color: #e53935;
+        }
+
+        .botones .confirmar {
+            background-color: #4CAF50;
+        }
+
+        .botones .confirmar:hover {
+            background-color: #45a049;
+        }

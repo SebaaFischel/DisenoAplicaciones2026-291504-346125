@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MalaPata - Jugador</title>
+  <link rel="stylesheet" href="jugador.css">
+</head>
+<body>
+  <script src="/utilesVista.js"></script>
+
+  <main class="layout">
+    <section class="card header">
+      <div>
+        <h1>Tablero de Jugador</h1>
+        <div id="resumenJugador"></div>
+      </div>
+      <button id="btnLogout" class="secondary" type="button">Cerrar sesion</button>
+    </section>
+
+    <section class="card grid-2">
+      <div>
+        <h2>Nueva apuesta</h2>
+        <form id="formIniciarApuesta" autocomplete="off">
+          <div class="field">
+            <label for="selectCarrera">Carrera</label>
+            <select id="selectCarrera" required></select>
+          </div>
+
+          <input type="hidden" id="idJornada" name="idJornada">
+          <input type="hidden" id="numeroCarrera" name="numeroCarrera">
+
+          <div class="field">
+            <label for="numeroParticipacion">Participacion</label>
+            <select id="numeroParticipacion" name="numeroParticipacion" required></select>
+          </div>
+
+          <div class="field">
+            <label for="modalidad">Modalidad</label>
+            <select id="modalidad" name="modalidad" required></select>
+          </div>
+
+          <div class="field">
+            <label for="monto">Monto</label>
+            <input id="monto" name="monto" type="number" min="1" step="0.01" required>
+          </div>
+
+          <div class="actions">
+            <button type="submit">Iniciar apuesta</button>
+          </div>
+        </form>
+      </div>
+
+      <div>
+        <h2>Carreras disponibles</h2>
+        <div id="tablaCarrerasDisponibles"></div>
+      </div>
+    </section>
+
+    <section id="panelConfirmacion" class="card hidden">
+      <h2>Confirmacion de apuesta</h2>
+      <div id="detalleConfirmacion"></div>
+      <form id="formConfirmarApuesta" autocomplete="off">
+        <div class="field">
+          <label for="contrasena">Contrasena</label>
+          <input id="contrasena" name="contrasena" type="password" required>
+        </div>
+        <div class="actions">
+          <button type="submit">Confirmar apuesta</button>
+          <button id="btnDescartarApuesta" type="button" class="secondary">Descartar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Mis apuestas</h2>
+      <div id="tablaMisApuestas"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import dispatcher from '/CommandDispatcher.js';
+
+    const resumenJugador = document.getElementById('resumenJugador');
+    const tablaCarrerasDisponibles = document.getElementById('tablaCarrerasDisponibles');
+    const tablaMisApuestas = document.getElementById('tablaMisApuestas');
+    const formIniciarApuesta = document.getElementById('formIniciarApuesta');
+    const formConfirmarApuesta = document.getElementById('formConfirmarApuesta');
+    const panelConfirmacion = document.getElementById('panelConfirmacion');
+    const detalleConfirmacion = document.getElementById('detalleConfirmacion');
+    const selectCarrera = document.getElementById('selectCarrera');
+    const idJornada = document.getElementById('idJornada');
+    const numeroCarrera = document.getElementById('numeroCarrera');
+    const numeroParticipacion = document.getElementById('numeroParticipacion');
+    const modalidad = document.getElementById('modalidad');
+    const btnDescartarApuesta = document.getElementById('btnDescartarApuesta');
+    const btnLogout = document.getElementById('btnLogout');
+
+    let carrerasCache = [];
+
+    function redirigir(destino) {
+      if (typeof destino === 'string' && destino.trim() !== '') {
+        window.location.href = destino;
+      }
+    }
+
+    function renderResumenJugador(data) {
+      if (!data) {
+        resumenJugador.innerHTML = '';
+        return;
+      }
+      resumenJugador.innerHTML =
+        '<span class="badge">Usuario: ' + data.usuario + '</span>' +
+        '<span class="badge">Nombre: ' + data.nombreCompleto + '</span>' +
+        '<span class="badge">Saldo: $' + Number(data.saldo || 0).toFixed(2) + '</span>' +
+        '<span class="badge">Total apostado: $' + Number(data.totalApostado || 0).toFixed(2) + '</span>' +
+        '<span class="badge">Total ganado: $' + Number(data.totalGanado || 0).toFixed(2) + '</span>';
+    }
+
+    function renderCarreraSelect(carreras) {
+      const opciones = ['<option value="">Seleccione una carrera...</option>'];
+      carreras.forEach((carrera, idx) => {
+        opciones.push(
+          '<option value="' + idx + '">#' + carrera.numero + ' - ' + carrera.nombre + ' (' + carrera.estado + ')</option>'
+        );
+      });
+      selectCarrera.innerHTML = opciones.join('');
+      idJornada.value = '';
+      numeroCarrera.value = '';
+      numeroParticipacion.innerHTML = '<option value="">Seleccione una participacion...</option>';
+    }
+
+    function renderParticipaciones(carrera) {
+      if (!carrera || !Array.isArray(carrera.participaciones)) {
+        numeroParticipacion.innerHTML = '<option value="">Seleccione una participacion...</option>';
+        return;
+      }
+      const opciones = ['<option value="">Seleccione una participacion...</option>'];
+      carrera.participaciones.forEach((p) => {
+        opciones.push(
+          '<option value="' + p.numero + '">#' + p.numero + ' - ' + p.caballo + ' (Dividendo: ' + p.dividendo + ')</option>'
+        );
+      });
+      numeroParticipacion.innerHTML = opciones.join('');
+    }
+
+    function renderModalidades(lista) {
+      if (!Array.isArray(lista)) {
+        modalidad.innerHTML = '<option value="">Sin modalidades</option>';
+        return;
+      }
+      const opciones = ['<option value="">Seleccione una modalidad...</option>'];
+      lista.forEach((m) => {
+        opciones.push('<option value="' + m.nombre + '">' + m.nombre + '</option>');
+      });
+      modalidad.innerHTML = opciones.join('');
+    }
+
+    const view = dispatcher.registerView('jugador', {
+      urlInicio: '/jugador/vistaConectada',
+      onError: (status, texto) => mostrarMensaje('Error ' + status + ': ' + texto),
+      onException: (msg) => mostrarMensaje(msg)
+    });
+
+    view.handler('usuarioNoAutenticado', (destino) => {
+      redirigir(destino || 'index.html');
+    });
+
+    view.handler('jugador', (data) => {
+      renderResumenJugador(data);
+    });
+
+    view.handler('carrerasDisponibles', (carreras) => {
+      carrerasCache = Array.isArray(carreras) ? carreras : [];
+      renderCarreraSelect(carrerasCache);
+      tablaCarrerasDisponibles.innerHTML = crearTablaDesdeJson(carrerasCache.map((c) => ({
+        idJornada: c.idJornada,
+        numero: c.numero,
+        nombre: c.nombre,
+        estado: c.estado,
+        fechaJornada: c.fechaJornada,
+        totalApostado: c.totalApostado,
+        cantidadApuestas: c.cantidadApuestas
+      })));
+    });
+
+    view.handler('modalidades', (lista) => {
+      renderModalidades(lista);
+    });
+
+    view.handler('misApuestas', (apuestas) => {
+      tablaMisApuestas.innerHTML = crearTablaDesdeJson(Array.isArray(apuestas) ? apuestas : []);
+    });
+
+    view.handler('confirmacion', (info) => {
+      panelConfirmacion.classList.remove('hidden');
+      detalleConfirmacion.innerHTML = crearTablaDesdeJson(info ? [info] : []);
+      formConfirmarApuesta.reset();
+    });
+
+    view.handler('ocultarConfirmacion', () => {
+      panelConfirmacion.classList.add('hidden');
+      detalleConfirmacion.innerHTML = '';
+      formConfirmarApuesta.reset();
+    });
+
+    view.handler('mensaje', (texto) => {
+      mostrarMensaje(texto);
+    });
+
+    selectCarrera.addEventListener('change', () => {
+      const idx = Number(selectCarrera.value);
+      if (!Number.isInteger(idx) || idx < 0 || idx >= carrerasCache.length) {
+        idJornada.value = '';
+        numeroCarrera.value = '';
+        renderParticipaciones(null);
+        return;
+      }
+      const carrera = carrerasCache[idx];
+      idJornada.value = carrera.idJornada;
+      numeroCarrera.value = carrera.numero;
+      renderParticipaciones(carrera);
+    });
+
+    formIniciarApuesta.addEventListener('submit', (e) => {
+      e.preventDefault();
+      dispatcher.submit('/jugador/iniciarApuesta', serializarFormulario('formIniciarApuesta'));
+    });
+
+    formConfirmarApuesta.addEventListener('submit', (e) => {
+      e.preventDefault();
+      dispatcher.submit('/jugador/confirmarApuesta', serializarFormulario('formConfirmarApuesta'));
+    });
+
+    btnDescartarApuesta.addEventListener('click', () => {
+      dispatcher.submit('/jugador/descartarApuesta', '');
+    });
+
+    btnLogout.addEventListener('click', () => {
+      dispatcher.submit('/login/logout', '');
+      window.location.href = 'index.html';
+    });
+
+    dispatcher.startView(view);
+  </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MalaPata - Inicio de sesion</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <script src="/utilesVista.js"></script>
+
+  <main class="page">
+    <section class="login-shell">
+      <article class="card">
+        <h1 class="main-title">MalaPata</h1>
+        <h2>Ingreso de Jugador</h2>
+        <p>Accede para ver carreras, modalidades y gestionar tus apuestas.</p>
+        <form id="formLoginJugador" autocomplete="off">
+          <div class="field">
+            <label for="usuario">Usuario</label>
+            <input id="usuario" name="usuario" type="text" required>
+          </div>
+          <div class="field">
+            <label for="contrasenaJugador">Contrasena</label>
+            <input id="contrasenaJugador" name="contrasena" type="password" required>
+          </div>
+          <button type="submit">Ingresar como jugador</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <h1 class="main-title">Administrador</h1>
+        <h2>Ingreso Administrativo</h2>
+        <p>Gestiona jornadas y estado de las carreras.</p>
+        <form id="formLoginAdmin" autocomplete="off">
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" type="text" required>
+          </div>
+          <div class="field">
+            <label for="contrasenia">Contrasenia</label>
+            <input id="contrasenia" name="contrasenia" type="password" required>
+          </div>
+          <button type="submit">Ingresar como admin</button>
+        </form>
+        <p class="footer-note">Si no tienes sesion activa, seras redirigido aqui automaticamente.</p>
+      </article>
+    </section>
+  </main>
+
+  <script type="module">
+    import dispatcher from '/CommandDispatcher.js';
+
+    const formLoginJugador = document.getElementById('formLoginJugador');
+    const formLoginAdmin = document.getElementById('formLoginAdmin');
+
+    function navegar(destino) {
+      if (typeof destino === 'string' && destino.trim() !== '') {
+        window.location.href = destino;
+      }
+    }
+
+    const view = dispatcher.registerView('index', {
+      urlInicio: '/login/vistaConectada',
+      onError: (status, texto) => mostrarMensaje('Error ' + status + ': ' + texto),
+      onException: (msg) => mostrarMensaje(msg)
+    });
+
+    view.handler('loginExitoso', (destino) => {
+      navegar(destino);
+    });
+
+    view.handler('usuarioNoAutenticado', (destino) => {
+      navegar(destino || 'index.html');
+    });
+
+    view.handler('mensaje', (texto) => {
+      mostrarMensaje(texto);
+    });
+
+    formLoginJugador.addEventListener('submit', (e) => {
+      e.preventDefault();
+      dispatcher.submit('/login/login', serializarFormulario('formLoginJugador'));
+    });
+
+    formLoginAdmin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      dispatcher.submit('/login/loginAdmin', serializarFormulario('formLoginAdmin'));
+    });
+
+    dispatcher.startView(view);
+  </script>
+</body>
+</html>

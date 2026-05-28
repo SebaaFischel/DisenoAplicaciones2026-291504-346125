@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Clientes</title>
+    
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+    <script src="/utilesVista.js"></script>
+    <div class="container">
+        <h1>Ingreso de Clientes</h1>
+
+        <form id="formBuscar" method="POST" action="/buscarCliente">
+            <div class="form-group">
+                <label for="cedula">Cédula:</label>
+                <input type="text" id="cedula" name="cedula" required>
+                <button type="submit" id="btnBuscar">Buscar</button>
+            </div>
+        </form>
+
+        <form id="formGuardar" method="POST" action="/guardarCliente">
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email">
+            </div>
+            <button type="submit" id="btnGuardar">Guardar</button>
+        </form>
+
+        <div id="tablaClientes"></div>
+    </div>
+
+     <script type="module">
+
+        const formBuscar  = document.getElementById('formBuscar');
+        const formGuardar = document.getElementById('formGuardar');
+        const nombre      = document.getElementById('nombre');
+        const email       = document.getElementById('email');
+        const btnGuardar  = document.getElementById('btnGuardar');
+        const cedulaInput = document.getElementById('cedula');
+        const tabla       = document.getElementById('tablaClientes');
+
+        import CommandDispatcher from '/CommandDispatcher.js';
+
+        const view = CommandDispatcher.registerView('clientes', {
+            urlInicio: '/clientes/vistaConectada'
+        });
+
+          
+        view.handler('clientes', function(clientes) {
+            tabla.innerHTML = crearTablaDesdeJson(clientes);
+        });
+        view.handler('cliente', function(cliente) {
+            nombre.value = cliente.nombre;
+            email.value  = cliente.email;
+        });
+        view.handler('habilitarIngreso', function(habilitar) {
+            nombre.value    = '';
+            email.value     = '';
+            nombre.disabled = !habilitar;
+            email.disabled  = !habilitar;
+            btnGuardar.disabled = !habilitar;
+        });
+        view.handler('limpiarEntradas', function() {
+            nombre.value      = '';
+            email.value       = '';
+            cedulaInput.value = '';
+        });
+        view.handler('mensaje', function(mensaje) {
+             mostrarMensaje(mensaje);
+        });
+
+        formBuscar.addEventListener('submit', function(e) {
+            e.preventDefault();
+            CommandDispatcher.submit("/clientes/ingresarCedula", serializarFormulario('formBuscar'));
+        });
+
+        formGuardar.addEventListener('submit', function(e) {
+            e.preventDefault();
+            CommandDispatcher.submit("/clientes/guardarCliente", serializarFormulario('formGuardar'));
+        });
+
+
+        CommandDispatcher.startView(view);
+    </script>
+</body>
+</html>

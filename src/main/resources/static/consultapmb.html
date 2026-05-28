@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes compraron producto mas barato</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+     <script src="/utilesVista.js"></script>
+    <div class="container">
+        <h1><label>Clientes que compraron el producto mas barato</label> 
+            
+        </h1>
+        <h1 style="text-align: left;">
+            <label><span id="pmb">  </span></label>
+        </h1>
+        <div id="divClientes"></div>
+    </div>
+      
+
+    <script type="module">
+        const spnPmb    = document.getElementById('pmb');
+        const divClientes = document.getElementById('divClientes');
+
+        import CommandDispatcher from '/CommandDispatcher.js';
+
+        const view = CommandDispatcher.registerView('consultaPmb', {
+            urlInicio: '/consultaPmb/vistaConectada'
+        });
+
+        view.handler('producto', function(producto) {
+            spnPmb.innerHTML = "Codigo: " + producto.codigo + "<br>" +
+                               "Nombre: " + producto.nombre + "<br>" +
+                               "Precio: $" + producto.precio + "<br>" +
+                               "Stock: " + producto.unidades;
+        });
+        view.handler('clientes', function(clientes) {
+            divClientes.innerHTML = crearTablaDesdeJson(clientes);
+        });
+        view.handler('mensaje', function(mensaje) {
+            mostrarMensaje(mensaje);
+        });
+
+        CommandDispatcher.startView(view);
+    </script>
+</body>
+</html>

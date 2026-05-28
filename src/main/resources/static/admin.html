@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MalaPata - Administrador</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <script src="/utilesVista.js"></script>
+
+  <main class="layout">
+    <section class="card header">
+      <div>
+        <h1>Tablero de Administrador</h1>
+        <div class="actions">
+          <button id="btnJornadaAnterior" type="button" class="secondary">Jornada anterior</button>
+          <button id="btnJornadaSiguiente" type="button" class="secondary">Jornada siguiente</button>
+        </div>
+      </div>
+      <button id="btnLogoutAdmin" type="button" class="secondary">Cerrar sesion</button>
+    </section>
+
+    <section class="card">
+      <h2>Jornada</h2>
+      <div id="resumenJornada"></div>
+    </section>
+
+    <section class="card grid-2">
+      <div>
+        <h3>Proximas carreras</h3>
+        <div id="tablaProximasCarreras"></div>
+      </div>
+      <div>
+        <h3>Carreras finalizadas</h3>
+        <div id="tablaCarrerasFinalizadas"></div>
+      </div>
+    </section>
+
+    <section id="panelDetalleCarrera" class="card hidden">
+      <h2>Detalle de carrera seleccionada</h2>
+      <div id="detalleCarrera"></div>
+      <h3>Participaciones</h3>
+      <div id="tablaParticipaciones"></div>
+      <div class="actions" style="margin-top: 12px;">
+        <button id="btnAbrirCarrera" type="button">Abrir carrera</button>
+        <button id="btnCerrarCarrera" type="button">Cerrar carrera</button>
+      </div>
+      <div class="field" style="margin-top: 12px;">
+        <label for="numeroGanador">Numero de participacion ganadora</label>
+        <input id="numeroGanador" type="number" min="1" step="1">
+      </div>
+      <div class="actions" style="margin-top: 10px;">
+        <button id="btnFinalizarCarrera" type="button">Finalizar carrera</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import dispatcher from '/CommandDispatcher.js';
+
+    const btnJornadaAnterior = document.getElementById('btnJornadaAnterior');
+    const btnJornadaSiguiente = document.getElementById('btnJornadaSiguiente');
+    const btnLogoutAdmin = document.getElementById('btnLogoutAdmin');
+    const resumenJornada = document.getElementById('resumenJornada');
+    const tablaProximasCarreras = document.getElementById('tablaProximasCarreras');
+    const tablaCarrerasFinalizadas = document.getElementById('tablaCarrerasFinalizadas');
+    const panelDetalleCarrera = document.getElementById('panelDetalleCarrera');
+    const detalleCarrera = document.getElementById('detalleCarrera');
+    const tablaParticipaciones = document.getElementById('tablaParticipaciones');
+    const numeroGanador = document.getElementById('numeroGanador');
+    const btnAbrirCarrera = document.getElementById('btnAbrirCarrera');
+    const btnCerrarCarrera = document.getElementById('btnCerrarCarrera');
+    const btnFinalizarCarrera = document.getElementById('btnFinalizarCarrera');
+
+    function redirigir(destino) {
+      if (typeof destino === 'string' && destino.trim() !== '') {
+        window.location.href = destino;
+      }
+    }
+
+    function carrerasBasicas(lista) {
+      if (!Array.isArray(lista)) return [];
+      return lista.map((c) => ({
+        numero: c.numero,
+        nombre: c.nombre,
+        estado: c.estado,
+        totalApostado: c.totalApostado,
+        cantidadApuestas: c.cantidadApuestas,
+        ganador: c.ganador,
+        horaFinalizacion: c.horaFinalizacion
+      }));
+    }
+
+    function renderTablaCarreras(target, lista) {
+      const idTabla = 'tabla_' + Math.random().toString(36).substring(2, 9);
+      target.innerHTML = crearTablaDesdeJson(carrerasBasicas(lista));
+      setTimeout(() => {
+        const tabla = target.querySelector('table');
+        if (!tabla) return;
+        tabla.id = idTabla;
+        const filas = tabla.querySelectorAll('tbody tr');
+        filas.forEach((fila, idx) => {
+          fila.classList.add('selectable');
+          fila.addEventListener('click', () => {
+            const carrera = lista[idx];
+            if (carrera && carrera.numero !== undefined) {
+              dispatcher.submit('/admin/seleccionarCarrera', 'numero=' + encodeURIComponent(carrera.numero));
+            }
+          });
+        });
+      }, 0);
+    }
+
+    const view = dispatcher.registerView('admin', {
+      urlInicio: '/admin/vistaConectada',
+      onError: (status, texto) => mostrarMensaje('Error ' + status + ': ' + texto),
+      onException: (msg) => mostrarMensaje(msg)
+    });
+
+    view.handler('usuarioNoAutenticado', (destino) => {
+      redirigir(destino || 'index.html');
+    });
+
+    view.handler('jornada', (jornada) => {
+      if (!jornada) {
+        resumenJornada.innerHTML = '';
+        tablaProximasCarreras.innerHTML = '';
+        tablaCarrerasFinalizadas.innerHTML = '';
+        return;
+      }
+
+      resumenJornada.innerHTML =
+        '<span class="badge">Fecha: ' + jornada.fecha + '</span>' +
+        '<span class="badge">Total apostado: $' + Number(jornada.totalApostado || 0).toFixed(2) + '</span>' +
+        '<span class="badge">Total pagado: $' + Number(jornada.totalPagado || 0).toFixed(2) + '</span>' +
+        '<span class="badge">Comisiones: $' + Number(jornada.totalComisiones || 0).toFixed(2) + '</span>' +
+        '<span class="badge">Finalizadas: ' + Number(jornada.cantidadFinalizadas || 0) + '</span>';
+
+      renderTablaCarreras(tablaProximasCarreras, Array.isArray(jornada.proximasCarreras) ? jornada.proximasCarreras : []);
+      renderTablaCarreras(tablaCarrerasFinalizadas, Array.isArray(jornada.carrerasFinalizadas) ? jornada.carrerasFinalizadas : []);
+    });
+
+    view.handler('detalleCarrera', (carrera) => {
+      panelDetalleCarrera.classList.remove('hidden');
+      detalleCarrera.innerHTML = crearTablaDesdeJson(carrera ? [{
+        numero: carrera.numero,
+        nombre: carrera.nombre,
+        estado: carrera.estado,
+        fechaJornada: carrera.fechaJornada,
+        totalApostado: carrera.totalApostado,
+        cantidadApuestas: carrera.cantidadApuestas,
+        ganador: carrera.ganador,
+        horaFinalizacion: carrera.horaFinalizacion
+      }] : []);
+
+      tablaParticipaciones.innerHTML = crearTablaDesdeJson(
+        Array.isArray(carrera?.participaciones) ? carrera.participaciones : []
+      );
+      numeroGanador.value = '';
+    });
+
+    view.handler('navegacion', (flags) => {
+      const hayAnterior = Array.isArray(flags) ? !!flags[0] : false;
+      const haySiguiente = Array.isArray(flags) ? !!flags[1] : false;
+      btnJornadaAnterior.disabled = !hayAnterior;
+      btnJornadaSiguiente.disabled = !haySiguiente;
+    });
+
+    view.handler('ocultarDetalleCarrera', () => {
+      panelDetalleCarrera.classList.add('hidden');
+      detalleCarrera.innerHTML = '';
+      tablaParticipaciones.innerHTML = '';
+      numeroGanador.value = '';
+    });
+
+    view.handler('mensaje', (texto) => {
+      mostrarMensaje(texto);
+    });
+
+    btnJornadaAnterior.addEventListener('click', () => {
+      dispatcher.submit('/admin/jornadaAnterior', '');
+    });
+
+    btnJornadaSiguiente.addEventListener('click', () => {
+      dispatcher.submit('/admin/jornadaSiguiente', '');
+    });
+
+    btnAbrirCarrera.addEventListener('click', () => {
+      dispatcher.submit('/admin/abrirCarrera', '');
+    });
+
+    btnCerrarCarrera.addEventListener('click', () => {
+      dispatcher.submit('/admin/cerrarCarrera', '');
+    });
+
+    btnFinalizarCarrera.addEventListener('click', () => {
+      const numero = Number(numeroGanador.value);
+      if (!Number.isInteger(numero) || numero <= 0) {
+        mostrarMensaje('Ingrese un numero ganador valido.');
+        return;
+      }
+      dispatcher.submit('/admin/finalizarCarrera', 'numeroGanador=' + encodeURIComponent(numero));
+    });
+
+    btnLogoutAdmin.addEventListener('click', () => {
+      dispatcher.submit('/login/logoutAdmin', '');
+      window.location.href = 'index.html';
+    });
+
+    dispatcher.startView(view);
+  </script>
+</body>
+</html>
