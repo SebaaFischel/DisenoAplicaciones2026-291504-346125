@@ -3,12 +3,16 @@ package uy.edu.ort.malapata.presentador;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import uy.edu.ort.malapata.dto.*;
 import uy.edu.ort.malapata.excepciones.MalaPataException;
 import uy.edu.ort.malapata.fachada.Fachada;
 import uy.edu.ort.malapata.modelo.*;
 import uy.edu.ort.malapata.observador.Observable;
 import uy.edu.ort.malapata.observador.Observador;
+import uy.edu.ort.malapata.utils.ConexionNavegador;
+import org.springframework.http.MediaType;
 
 @RestController
 @Scope("session")
@@ -19,10 +23,20 @@ public class PresentadorJugador implements Observador {
     private Apuesta apuestaEnCurso = null;
     private Participacion participacionEnCurso = null;
     private Carrera carreraEnCurso = null;
+    private Jugador jugadorActual = null;
 
-    public PresentadorJugador(Fachada fachada) {
+    private final ConexionNavegador conexionNavegador;
+
+    public PresentadorJugador(Fachada fachada, ConexionNavegador conexionNavegador) {
         this.fachada = fachada;
+        this.conexionNavegador = conexionNavegador;
         this.fachada.agregarObservador(this);
+    }
+
+    @GetMapping(value = "/registrarSSE", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter registrarSSE() {
+        conexionNavegador.conectarSSE();
+        return conexionNavegador.getConexionSSE();
     }
 
     @PostMapping("/vistaConectada")
@@ -30,6 +44,7 @@ public class PresentadorJugador implements Observador {
             @SessionAttribute(name = "jugador", required = false) Jugador jugador) {
         if (jugador == null)
             return Commands.create(new Command("usuarioNoAutenticado", "index.html"));
+        this.jugadorActual = jugador;
         return Commands.create(
                 jugador(jugador),
                 carrerasDisponibles(),
@@ -129,7 +144,12 @@ public class PresentadorJugador implements Observador {
 
     @Override
     public void actualizar(Object evento, Observable origen) {
-        if (Fachada.Eventos.cambioEstadoCarrera.equals(evento))
-            System.out.println("Cambio de estado detectado.");
+        if (Fachada.Eventos.cambioEstadoCarrera.equals(evento)) {
+            conexionNavegador.enviarJSON(Commands.create(
+                    jugador(jugadorActual),
+                    carrerasDisponibles(),
+                    misApuestas(jugadorActual),
+                    modalidades()));
+        }
     }
 }

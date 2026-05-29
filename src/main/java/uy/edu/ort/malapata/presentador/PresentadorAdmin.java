@@ -2,26 +2,42 @@ package uy.edu.ort.malapata.presentador;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import uy.edu.ort.malapata.dto.*;
 import uy.edu.ort.malapata.excepciones.MalaPataException;
 import uy.edu.ort.malapata.fachada.Fachada;
 import uy.edu.ort.malapata.modelo.*;
 import uy.edu.ort.malapata.observador.Observable;
 import uy.edu.ort.malapata.observador.Observador;
+import uy.edu.ort.malapata.utils.ConexionNavegador;
+import org.springframework.http.MediaType;
 
 @RestController
 @Scope("session")
 @RequestMapping("/admin")
+
+
+
 public class PresentadorAdmin implements Observador {
 
     private final Fachada fachada;
     private Jornada jornadaActual       = null;
     private Carrera carreraSeleccionada = null;
 
-    public PresentadorAdmin(Fachada fachada) {
+    private final ConexionNavegador conexionNavegador;
+
+    public PresentadorAdmin(Fachada fachada, ConexionNavegador conexionNavegador) {
         this.fachada = fachada;
+        this.conexionNavegador = conexionNavegador;
         this.fachada.agregarObservador(this);
     }
+
+    @GetMapping(value = "/registrarSSE", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+public SseEmitter registrarSSE() {
+    conexionNavegador.conectarSSE();
+    return conexionNavegador.getConexionSSE();
+}
 
     @PostMapping("/vistaConectada")
     public Commands vistaConectada(
@@ -151,9 +167,12 @@ public class PresentadorAdmin implements Observador {
             throw new MalaPataException("No hay carrera seleccionada.");
     }
 
-    @Override
-    public void actualizar(Object evento, Observable origen) {
-        if (Fachada.Eventos.cambioEstadoCarrera.equals(evento))
-            System.out.println("Cambio de estado de carrera detectado.");
+@Override
+public void actualizar(Object evento, Observable origen) {
+    if (Fachada.Eventos.cambioEstadoCarrera.equals(evento)) {
+        conexionNavegador.enviarJSON(Commands.create(
+                jornada(jornadaActual)
+        ));
     }
+}
 }
