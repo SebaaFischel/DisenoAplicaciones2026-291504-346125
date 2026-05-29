@@ -39,7 +39,7 @@ public SseEmitter registrarSSE() {
     return conexionNavegador.getConexionSSE();
 }
 
-    @PostMapping("/vistaConectada")
+    @GetMapping("/vistaConectada")
     public Commands vistaConectada(
             @SessionAttribute(name = "usuarioAdmin", required = false) Administrador admin) {
         if (admin == null)

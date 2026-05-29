@@ -39,7 +39,7 @@ public class PresentadorJugador implements Observador {
         return conexionNavegador.getConexionSSE();
     }
 
-    @PostMapping("/vistaConectada")
+    @GetMapping("/vistaConectada")
     public Commands vistaConectada(
             @SessionAttribute(name = "jugador", required = false) Jugador jugador) {
         if (jugador == null)

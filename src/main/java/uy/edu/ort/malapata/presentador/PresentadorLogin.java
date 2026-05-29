@@ -18,7 +18,7 @@ public class PresentadorLogin {
         this.fachada = fachada;
     }
 
-    @PostMapping("/vistaConectada")
+    @GetMapping("/vistaConectada")
     public Commands vistaConectada() {
         return Commands.create(new Command("mostrarLogin", true));
     }
