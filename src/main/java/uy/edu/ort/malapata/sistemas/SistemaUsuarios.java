@@ -48,6 +48,11 @@ public class SistemaUsuarios {
         if (sesion != null) sesiones.remove(sesion);
     }
 
+        public void logoutJugador(String usuario) {
+        Sesion sesion = buscarSesion(usuario);
+        if (sesion != null) sesiones.remove(sesion);
+    }
+
     public Administrador buscarAdministrador(String usuario) {
         for (Administrador admin : administradores) {
             if (admin.getUsuario().equals(usuario)) return admin;

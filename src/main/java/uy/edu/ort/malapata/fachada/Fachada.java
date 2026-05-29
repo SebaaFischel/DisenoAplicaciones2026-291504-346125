@@ -66,6 +66,7 @@ public class Fachada extends Observable {
     }
 
     public void logoutJugador(String usuario) {
+        sistemaUsuarios.logoutJugador(usuario);
     }
 
     public Jugador buscarJugador(String usuario) {
