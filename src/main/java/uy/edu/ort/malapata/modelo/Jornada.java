@@ -39,13 +39,8 @@ public class Jornada {
 
     public double getTotalPagado() {
         double total = 0;
-        for (Carrera c : carreras) {
-            if (c.getEstado().getValor().equals(EstadoCarrera.FINALIZADA) && c.getGanador() != null) {
-                for (Apuesta a : c.getGanador().getApuestas()) {
-                    total += a.getMontoCobrado();
-                }
-            }
-        }
+        for (Carrera c : carreras)
+            total += c.getTotalPagado();
         return total;
     }
 
@@ -107,19 +102,16 @@ public class Jornada {
         return null;
     }
 
-    public long getCantidadFinalizadas() {
-        return carreras.stream()
-                .filter(c -> c.getEstado().getValor().equals(EstadoCarrera.FINALIZADA))
-                .count();
-    }
+public int getCantidadFinalizadas() {
+    return getCarrerasFinalizadas().size();
+}
 
     public ArrayList<Carrera> getCarrerasFinalizadas() {
         ArrayList<Carrera> ret = new ArrayList<>();
         for (Carrera c : carreras) {
-            if (c.getEstado().getValor().equals(EstadoCarrera.FINALIZADA))
-                ret.add(c);
+            if (c.esFinalizada())
+                ret.add(0, c);
         }
-        ret.sort((a, b) -> b.getNumero() - a.getNumero());
         return ret;
     }
 
@@ -134,7 +126,7 @@ public class Jornada {
     public ArrayList<Carrera> getProximasCarreras() {
         ArrayList<Carrera> ret = new ArrayList<>();
         for (Carrera c : carreras) {
-            if (!c.getEstado().getValor().equals(EstadoCarrera.FINALIZADA))
+            if (!c.esFinalizada())
                 ret.add(c);
         }
         return ret;

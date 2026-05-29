@@ -11,10 +11,16 @@ public class ComisionHipodromo {
     }
 
     public static ComisionHipodromo getInstancia() {
-        if (instancia == null) instancia = new ComisionHipodromo();
+        if (instancia == null)
+            instancia = new ComisionHipodromo();
         return instancia;
     }
 
-    public double getPorcentaje()              { return porcentaje; }
-    public void setPorcentaje(double porcentaje) { this.porcentaje = porcentaje; }
+    public double getPorcentaje() {
+        return porcentaje;
+    }
+
+    public void setPorcentaje(double porcentaje) {
+        this.porcentaje = porcentaje;
+    }
 }

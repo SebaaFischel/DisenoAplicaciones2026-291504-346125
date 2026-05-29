@@ -8,26 +8,19 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import uy.edu.ort.agenda.modelo.Sesion;
 import uy.edu.ort.malapata.fachada.Fachada;
 
-@RestController
+@Controller
+@Scope("session")
+public class HomePresenter {
 
-@RequestMapping("/menuAgenda")
-public class PresenterMenu {
-    
     private final Fachada fachada;
 
-    public PresenterMenu(Fachada fachada) {
+    public HomePresenter(Fachada fachada) {
         this.fachada = fachada;
     }
 
-    @GetMapping("/vistaConectada")
-    public Commands inicializarVista(@SessionAttribute(name = "sesion", required=false) Sesion sesion){
-        if (sesion== null) {
-             return Commands.create(new Command("usuarioNoAutenticado", "loginAgenda.html"));
-         }
-         return Commands.create(new Command("nombreCompleto", sesion.getUsuario().getNombreCompleto()));
-        
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/index.html";
     }
-
-
-
 }
+

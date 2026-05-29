@@ -92,4 +92,11 @@ public class Participacion {
     public void invalidarDividendo() {
         dividendo.invalidar();
     }
+
+    public double getTotalPagado() {
+    double total = 0;
+    for (Apuesta a : apuestas)
+        total += a.getMontoCobrado();
+    return total;
+}
 }

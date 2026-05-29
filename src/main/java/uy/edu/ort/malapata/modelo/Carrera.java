@@ -44,6 +44,10 @@ public class Carrera {
         return horaFinalizacion;
     }
 
+    public boolean esFinalizada() {
+    return estado.esFinalizada();
+}
+
     public void agregarParticipacion(Participacion p) {
         participaciones.add(p);
     }
@@ -84,7 +88,7 @@ public class Carrera {
     }
 
     public void abrir() throws MalaPataException {
-        if (!estado.getValor().equals(EstadoCarrera.DEFINIDA))
+        if (!estado.puedeAbrirse())
             throw new MalaPataException("No se puede abrir esta carrera.");
         estado = new EstadoCarrera(EstadoCarrera.ABIERTA);
         for (Participacion p : participaciones)
@@ -92,13 +96,13 @@ public class Carrera {
     }
 
     public void cerrar() throws MalaPataException {
-        if (!estado.getValor().equals(EstadoCarrera.ESTABLE))
+        if (!estado.puedeCerrarse())
             throw new MalaPataException("No es posible cerrar esta carrera");
         estado = new EstadoCarrera(EstadoCarrera.CERRADA);
     }
 
     public void finalizar(int numeroGanador) throws MalaPataException {
-        if (!estado.getValor().equals(EstadoCarrera.CERRADA))
+        if (!estado.puedeFinalizarse())
             throw new MalaPataException("No se puede finalizar esta carrera.");
         Participacion pg = buscarParticipacion(numeroGanador);
         if (pg == null)
@@ -127,7 +131,7 @@ public class Carrera {
     }
 
     public boolean permiteApuestas() {
-        return estado.esAbiertaOEstable();
+        return estado.permiteApuestas();
     }
 
     private void recalcularDividendos(double comision) {
@@ -137,21 +141,20 @@ public class Carrera {
     }
 
     private void actualizarEstado() {
-        String val = estado.getValor();
-        if (val.equals(EstadoCarrera.CERRADA) || val.equals(EstadoCarrera.FINALIZADA))
-            return;
-        boolean todosValidos = true;
-        for (Participacion p : participaciones) {
-            if (!p.isDividendoValido()) {
-                todosValidos = false;
-                break;
-            }
-        }
-        if (todosValidos && val.equals(EstadoCarrera.ABIERTA))
-            estado = new EstadoCarrera(EstadoCarrera.ESTABLE);
-        if (!todosValidos && val.equals(EstadoCarrera.ESTABLE))
-            estado = new EstadoCarrera(EstadoCarrera.ABIERTA);
+    if (estado.esFinalOCerrada())
+        return;
+    boolean todosValidos = true;
+for (Participacion p : participaciones) {
+    if (!p.isDividendoValido()) {
+        todosValidos = false;
+        break;
     }
+}
+    if (todosValidos && estado.esAbierta())
+        estado = new EstadoCarrera(EstadoCarrera.ESTABLE);
+    if (!todosValidos && estado.esEstable())
+        estado = new EstadoCarrera(EstadoCarrera.ABIERTA);
+}
 
     private void liquidarApuestas(Participacion pg) {
         double totalAlGanador = pg.getTotalApostadoEnParticipacion();
@@ -160,4 +163,10 @@ public class Carrera {
             a.liquidar(dividendoCierre, totalAlGanador);
         }
     }
+
+public double getTotalPagado() {
+    if (!esFinalizada() || ganador == null)
+        return 0;
+    return ganador.getTotalPagado();
+}
 }
