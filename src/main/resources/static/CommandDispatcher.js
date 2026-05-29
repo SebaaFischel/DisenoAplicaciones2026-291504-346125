@@ -95,7 +95,7 @@ class ViewConfig {
 
     // Ejecutar URL de inicio
     if (this.urlInicio) {
-      this.dispatcher.submit(this.urlInicio, this.dataInicio || {});
+      this.dispatcher.submit(this.urlInicio, this.dataInicio || {}, 'GET');
     }
 
     // Registrar beforeunload
@@ -115,7 +115,7 @@ class ViewConfig {
   _finish() {
     // Ejecutar URL de cierre
     if (this.urlCierre) {
-      this.dispatcher.submit(this.urlCierre, {});
+      this.dispatcher.submit(this.urlCierre, {}, 'POST');
       this.urlCierre = null; // 1 vista = 1 cierre
     }
 
@@ -365,6 +365,37 @@ class CommandDispatcher {
   }
 
   /**
+   * Conecta a un endpoint SSE y procesa los comandos recibidos
+   * @param {string} url - URL del endpoint SSE
+   * @returns {EventSource} - Instancia de EventSource
+   */
+  connectSSE(url) {
+    const eventSource = new EventSource(url);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.commands && Array.isArray(data.commands)) {
+          this._processCommands(data.commands);
+        }
+      } catch (e) {
+        console.error('Error procesando mensaje SSE:', e);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('Error en conexión SSE:', error);
+    };
+
+    // Registrar cleanup automático al cerrar la vista
+    this.addCleanupCallback(() => {
+      eventSource.close();
+    });
+
+    return eventSource;
+  }
+
+  /**
    * Procesa un objeto Commands del backend
    * @param {Object} data - Objeto con propiedad commands: { commands: [...] }
    */
@@ -381,8 +412,9 @@ class CommandDispatcher {
    * @param {string} url - URL del endpoint
    * @param {Object|string} data - Datos a enviar
    */
-  async submit(url, data = {}) {
+  async submit(url, data = {}, method = 'POST') {
     let bodyData;
+    const httpMethod = (method || 'POST').toUpperCase();
     
     if (typeof data === 'string') {
       bodyData = data;
@@ -397,27 +429,37 @@ class CommandDispatcher {
     }
 
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
+      let fetchUrl = url;
+      const fetchOptions = {
+        method: httpMethod,
+        credentials: 'include'
+      };
+
+      if (httpMethod === 'GET') {
+        if (bodyData && bodyData.length > 0) {
+          fetchUrl += (fetchUrl.includes('?') ? '&' : '?') + bodyData;
+        }
+      } else {
+        fetchOptions.headers = {
           'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        credentials: 'include',
-        body: bodyData
-      });
+        };
+        fetchOptions.body = bodyData;
+      }
+
+      const response = await fetch(fetchUrl, fetchOptions);
 
       const status = response.status;
       const text = await response.text();
 
-      // Errores HTTP
-      if (status < 200 || status > 299) {
-        this._notifyError(status, text, url, bodyData);
-        return;
-      }
-
       // Excepciones de aplicación (status 299)
       if (status === 299) {
         this._notifyException(text);
+        return;
+      }
+
+      // Errores HTTP
+      if (status < 200 || status > 299) {
+        this._notifyError(status, text, fetchUrl, bodyData);
         return;
       }
 
