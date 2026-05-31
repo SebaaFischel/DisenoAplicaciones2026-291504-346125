@@ -4,8 +4,11 @@ import uy.edu.ort.malapata.excepciones.MalaPataException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import uy.edu.ort.malapata.dto.ApuestaDto;
+import uy.edu.ort.malapata.observador.Observable;
 
-public class Carrera {
+public class Carrera extends Observable {
+
+    public enum Eventos { cambioEstado }
 
     private int numero;
     private String nombre;
@@ -93,12 +96,14 @@ public class Carrera {
         estado = new EstadoCarrera(EstadoCarrera.ABIERTA);
         for (Participacion p : participaciones)
             p.invalidarDividendo();
+        avisar(Eventos.cambioEstado);
     }
 
     public void cerrar() throws MalaPataException {
         if (!estado.puedeCerrarse())
             throw new MalaPataException("No es posible cerrar esta carrera");
         estado = new EstadoCarrera(EstadoCarrera.CERRADA);
+        avisar(Eventos.cambioEstado);
     }
 
     public void finalizar(int numeroGanador) throws MalaPataException {
@@ -111,6 +116,7 @@ public class Carrera {
         horaFinalizacion = LocalTime.now();
         estado = new EstadoCarrera(EstadoCarrera.FINALIZADA);
         liquidarApuestas(pg);
+        avisar(Eventos.cambioEstado);
     }
 
     public void registrarApuesta(Apuesta apuesta, Participacion participacion, double comision)
@@ -120,6 +126,7 @@ public class Carrera {
         participacion.agregarApuesta(apuesta);
         recalcularDividendos(comision);
         actualizarEstado();
+        avisar(Eventos.cambioEstado);
     }
 
     public Participacion buscarParticipacion(int numero) {

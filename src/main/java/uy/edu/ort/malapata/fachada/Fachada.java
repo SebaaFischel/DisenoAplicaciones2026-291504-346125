@@ -7,13 +7,14 @@ import uy.edu.ort.malapata.dto.ApuestaDto;
 import uy.edu.ort.malapata.dto.CarreraDto;
 import uy.edu.ort.malapata.excepciones.MalaPataException;
 import uy.edu.ort.malapata.observador.Observable;
+import uy.edu.ort.malapata.observador.Observador;
 import uy.edu.ort.malapata.modelo.*;
 import uy.edu.ort.malapata.sistemas.SistemaApuestas;
 import uy.edu.ort.malapata.sistemas.SistemaCarreras;
 import uy.edu.ort.malapata.sistemas.SistemaUsuarios;
 
 @Service
-public class Fachada extends Observable {
+public class Fachada extends Observable implements Observador {
 
     public enum Eventos {
         cambioEstadoCarrera
@@ -42,7 +43,9 @@ public class Fachada extends Observable {
     }
 
     public Carrera crearCarrera(Jornada jornada, String nombre) {
-        return sistemaCarreras.crearCarrera(jornada, nombre);
+        Carrera carrera = sistemaCarreras.crearCarrera(jornada, nombre);
+        carrera.agregarObservador(this);
+        return carrera;
     }
 
     public void agregarParticipacion(Carrera carrera, Participacion participacion) {
@@ -95,17 +98,14 @@ public class Fachada extends Observable {
 
     public void abrirCarrera(Jornada jornada, int numeroCarrera) throws MalaPataException {
         sistemaCarreras.abrirCarrera(jornada, numeroCarrera);
-        avisar(Eventos.cambioEstadoCarrera);
     }
 
     public void cerrarCarrera(Jornada jornada, int numeroCarrera) throws MalaPataException {
         sistemaCarreras.cerrarCarrera(jornada, numeroCarrera);
-        avisar(Eventos.cambioEstadoCarrera);
     }
 
     public void finalizarCarrera(Jornada jornada, int numeroCarrera, int numeroGanador) throws MalaPataException {
         sistemaCarreras.finalizarCarrera(jornada, numeroCarrera, numeroGanador);
-        avisar(Eventos.cambioEstadoCarrera);
     }
 
     public ArrayList<CarreraDto> getCarrerasDtoDisponiblesParaApostar() {
@@ -145,7 +145,6 @@ public class Fachada extends Observable {
     public void confirmarApuesta(Apuesta apuesta, Participacion participacion,
             Carrera carrera, String contrasena) throws MalaPataException {
         sistemaApuestas.confirmarApuesta(apuesta, participacion, carrera, contrasena);
-        avisar(Eventos.cambioEstadoCarrera);
     }
 
     public ArrayList<ApuestaDto> getApuestasDtoDelJugador(String usuarioJugador) {
@@ -154,5 +153,11 @@ public class Fachada extends Observable {
 
     public ApuestaDto getApuestaDtoConContexto(Apuesta apuesta, Participacion part) {
         return sistemaApuestas.getApuestaDtoConContexto(apuesta, part, getJornadas());
+    }
+
+    @Override
+    public void actualizar(Object evento, Observable origen) {
+        if (Carrera.Eventos.cambioEstado.equals(evento))
+            avisar(Eventos.cambioEstadoCarrera);
     }
 }
