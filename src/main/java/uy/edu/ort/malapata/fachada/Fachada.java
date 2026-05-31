@@ -49,10 +49,6 @@ public class Fachada extends Observable {
         sistemaCarreras.agregarParticipacion(carrera, participacion);
     }
 
-    public ModalidadApuesta getModalidad(String nombre) {
-        return sistemaApuestas.getModalidad(nombre);
-    }
-
     public Administrador loginAdministrador(String usuario, String contrasena) throws MalaPataException {
         return sistemaUsuarios.loginAdministrador(usuario, contrasena);
     }
@@ -120,7 +116,7 @@ public class Fachada extends Observable {
         return ComisionHipodromo.getInstancia().getPorcentaje();
     }
 
-    public ArrayList<ModalidadApuesta> getModalidades() {
+    public ArrayList<String> getModalidades() {
         return sistemaApuestas.getModalidades();
     }
 

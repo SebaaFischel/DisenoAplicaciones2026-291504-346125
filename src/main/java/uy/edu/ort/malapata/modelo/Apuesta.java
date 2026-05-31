@@ -1,20 +1,26 @@
 package uy.edu.ort.malapata.modelo;
 
 import uy.edu.ort.malapata.excepciones.MalaPataException;
+import uy.edu.ort.malapata.modelo.interfaces.CalculadorDescuento;
+import uy.edu.ort.malapata.modelo.interfaces.CalculadorPremio;
 
-public class Apuesta {
+public abstract class Apuesta {
 
+    protected double montoApostado;
+    protected double dividendoCaballo;
     private Jugador jugador;
-    private double monto;
-    private ModalidadApuesta modalidad;
     private EstadoApuesta estado;
-    private double dividendoAlCierre;
     private double montoCobrado;
+    private CalculadorDescuento calculadorDescuento;
+    private CalculadorPremio calculadorPremio;
 
-    public Apuesta(Jugador jugador, double monto, ModalidadApuesta modalidad) {
+    public Apuesta(Jugador jugador, double montoApostado,
+            CalculadorDescuento calculadorDescuento,
+            CalculadorPremio calculadorPremio) {
         this.jugador = jugador;
-        this.monto = monto;
-        this.modalidad = modalidad;
+        this.montoApostado = montoApostado;
+        this.calculadorDescuento = calculadorDescuento;
+        this.calculadorPremio = calculadorPremio;
         this.estado = new EstadoApuesta(EstadoApuesta.PENDIENTE);
     }
 
@@ -23,19 +29,19 @@ public class Apuesta {
     }
 
     public double getMonto() {
-        return monto;
+        return montoApostado;
     }
 
-    public ModalidadApuesta getModalidad() {
-        return modalidad;
+    public double getDividendoCaballo() {
+        return dividendoCaballo;
+    }
+
+    public void setDividendoCaballo(double dividendo) {
+        this.dividendoCaballo = dividendo;
     }
 
     public EstadoApuesta getEstado() {
         return estado;
-    }
-
-    public double getDividendoAlCierre() {
-        return dividendoAlCierre;
     }
 
     public double getMontoCobrado() {
@@ -46,34 +52,30 @@ public class Apuesta {
         return estado.estaLiquidada();
     }
 
-    public double calcularCosto() {
-        return modalidad.calcularCosto(monto);
+    public double calcularDescuento() {
+        return calculadorDescuento.calcular(montoApostado, dividendoCaballo);
     }
 
-    public double calcularPagoEstimado(double dividendoActual, double totalApostadoAlCaballo) {
-        return modalidad.calcularPago(monto, dividendoActual, totalApostadoAlCaballo);
+    public double calcularPremio(double dividendo) {
+        return calculadorPremio.calcular(montoApostado, dividendo);
     }
 
-    public boolean validarContra(Jugador jugador, Carrera carrera) throws MalaPataException {
-        if (monto < 1)
+    public abstract String getNombre();
+
+    public void validar(Jugador jugador, Carrera carrera) throws MalaPataException {
+        if (montoApostado < 1)
             throw new MalaPataException("Monto inválido");
-
         if (!carrera.permiteApuestas())
             throw new MalaPataException("Esta carrera ya no recibe apuestas");
-
-        double costo = calcularCosto();
-        if (jugador.getSaldo() < costo)
+        if (jugador.getSaldo() < calcularDescuento())
             throw new MalaPataException("Saldo insuficiente");
-
-        return true;
     }
 
     public void liquidar(double dividendoCierre, double totalApostadoAlCaballo) {
-        this.dividendoAlCierre = dividendoCierre;
-        double pago = modalidad.calcularPago(monto, dividendoCierre, totalApostadoAlCaballo);
+        this.dividendoCaballo = dividendoCierre;
+        double pago = calculadorPremio.calcular(montoApostado, dividendoCierre);
         jugador.acreditarGanancia(pago);
         this.montoCobrado = pago;
         this.estado = new EstadoApuesta(EstadoApuesta.LIQUIDADA);
-
     }
 }

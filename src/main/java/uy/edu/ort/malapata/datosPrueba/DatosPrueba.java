@@ -67,43 +67,40 @@ public class DatosPrueba {
         fachada.agregarParticipacion(c6, new Participacion(1, centelleo));
         fachada.agregarParticipacion(c6, new Participacion(2, fugaz));
     }
+private static void cargarApuestasYCerrar(Carrera carrera, Fachada fachada)
+        throws MalaPataException {
+    carrera.abrir();
 
-    private static void cargarApuestasYCerrar(Carrera carrera, Fachada fachada)
-            throws MalaPataException {
-        carrera.abrir();
+    Jugador[] jugadores = {
+        new Jugador("jt1",  "jt1",  "Jugador jt1",  999999),
+        new Jugador("jt2",  "jt2",  "Jugador jt2",  999999),
+        new Jugador("jt3",  "jt3",  "Jugador jt3",  999999),
+        new Jugador("jt4",  "jt4",  "Jugador jt4",  999999),
+        new Jugador("jt5",  "jt5",  "Jugador jt5",  999999),
+        new Jugador("jt6",  "jt6",  "Jugador jt6",  999999),
+        new Jugador("jt7",  "jt7",  "Jugador jt7",  999999),
+        new Jugador("jt8",  "jt8",  "Jugador jt8",  999999),
+        new Jugador("jt9",  "jt9",  "Jugador jt9",  999999),
+        new Jugador("jt10", "jt10", "Jugador jt10", 999999),
+        new Jugador("jt11", "jt11", "Jugador jt11", 999999),
+        new Jugador("jt12", "jt12", "Jugador jt12", 999999)
+    };
 
-        ModalidadApuesta simple = fachada.getModalidad("Simple");
+    int[] cantidades = { 12, 10, 10 };
+    double[] montos  = { 3000, 2000, 1500 };
 
-        Jugador[] jugadores = {
-            new Jugador("jt1",  "jt1",  "Jugador jt1",  999999),
-            new Jugador("jt2",  "jt2",  "Jugador jt2",  999999),
-            new Jugador("jt3",  "jt3",  "Jugador jt3",  999999),
-            new Jugador("jt4",  "jt4",  "Jugador jt4",  999999),
-            new Jugador("jt5",  "jt5",  "Jugador jt5",  999999),
-            new Jugador("jt6",  "jt6",  "Jugador jt6",  999999),
-            new Jugador("jt7",  "jt7",  "Jugador jt7",  999999),
-            new Jugador("jt8",  "jt8",  "Jugador jt8",  999999),
-            new Jugador("jt9",  "jt9",  "Jugador jt9",  999999),
-            new Jugador("jt10", "jt10", "Jugador jt10", 999999),
-            new Jugador("jt11", "jt11", "Jugador jt11", 999999),
-            new Jugador("jt12", "jt12", "Jugador jt12", 999999)
-        };
-
-        int[] cantidades = { 12, 10, 10 };
-        double[] montos  = { 3000, 2000, 1500 };
-
-        for (int i = 0; i < carrera.getParticipaciones().size(); i++) {
-            Participacion p = carrera.getParticipaciones().get(i);
-            int cant = cantidades[Math.min(i, cantidades.length - 1)];
-            double m = montos[Math.min(i, montos.length - 1)];
-            for (int j = 0; j < cant; j++) {
-                Jugador jug = jugadores[j % jugadores.length];
-                Apuesta a = new Apuesta(jug, m, simple);
-                jug.descontarSaldo(a.calcularCosto());
-                carrera.registrarApuesta(a, p, ComisionHipodromo.getInstancia().getPorcentaje());
-            }
+    for (int i = 0; i < carrera.getParticipaciones().size(); i++) {
+        Participacion p = carrera.getParticipaciones().get(i);
+        int cant = cantidades[Math.min(i, cantidades.length - 1)];
+        double m = montos[Math.min(i, montos.length - 1)];
+        for (int j = 0; j < cant; j++) {
+            Jugador jug = jugadores[j % jugadores.length];
+            Apuesta a = new ApuestaSimple(jug, m);
+            jug.descontarSaldo(a.calcularDescuento());
+            carrera.registrarApuesta(a, p, ComisionHipodromo.getInstancia().getPorcentaje());
         }
-
-        carrera.cerrar();
     }
+
+    carrera.cerrar();
+}
 }

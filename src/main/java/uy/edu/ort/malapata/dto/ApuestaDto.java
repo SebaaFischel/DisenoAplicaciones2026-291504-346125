@@ -3,7 +3,6 @@ package uy.edu.ort.malapata.dto;
 import java.util.ArrayList;
 import java.util.List;
 import uy.edu.ort.malapata.modelo.Apuesta;
-import uy.edu.ort.malapata.modelo.Jornada;
 
 public class ApuestaDto {
 
@@ -23,10 +22,10 @@ public class ApuestaDto {
             int numeroCarrera, String fechaJornada, String estadoCarrera) {
         this.caballo = nombreCaballo;
         this.carrera = nombreCarrera;
-        this.modalidad = apuesta.getModalidad().getNombre();
+        this.modalidad = apuesta.getNombre();
         this.monto = apuesta.getMonto();
-        this.costo = apuesta.calcularCosto();
-        this.dividendoAlCierre = apuesta.getDividendoAlCierre();
+        this.costo = apuesta.calcularDescuento();
+        this.dividendoAlCierre = apuesta.getDividendoCaballo();
         this.montoCobrado = apuesta.getMontoCobrado();
         this.liquidada = apuesta.isLiquidada();
         this.numeroCarrera = numeroCarrera;
