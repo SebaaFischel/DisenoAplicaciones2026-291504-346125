@@ -19,9 +19,26 @@ public class SistemaApuestas {
         return modalidades;
     }
 
-    public Apuesta iniciarApuesta(Jugador jugador, Carrera carrera,
-            Participacion participacion, String nombreModalidad,
-            double monto) throws MalaPataException {
+    public Apuesta iniciarApuesta(String usuarioJugador, int idJornada, int numeroCarrera,
+            int numeroParticipacion, String nombreModalidad, double monto,
+            SistemaUsuarios sistemaUsuarios, SistemaCarreras sistemaCarreras)
+            throws MalaPataException {
+
+        Jugador jugador = sistemaUsuarios.buscarJugador(usuarioJugador);
+        if (jugador == null)
+            throw new MalaPataException("Jugador no encontrado.");
+
+        ArrayList<Jornada> jornadas = sistemaCarreras.getJornadas();
+        if (idJornada < 0 || idJornada >= jornadas.size())
+            throw new MalaPataException("Jornada no encontrada.");
+
+        Carrera carrera = jornadas.get(idJornada).buscarCarrera(numeroCarrera);
+        if (carrera == null || !carrera.permiteApuestas())
+            throw new MalaPataException("Esta carrera ya no recibe apuestas.");
+
+        Participacion participacion = carrera.buscarParticipacion(numeroParticipacion);
+        if (participacion == null)
+            throw new MalaPataException("Participación no encontrada.");
 
         Apuesta apuesta = crearApuesta(jugador, monto, nombreModalidad, participacion);
         apuesta.validar(jugador, carrera);
@@ -65,13 +82,13 @@ public class SistemaApuestas {
         return dtos;
     }
 
-public ApuestaDto getApuestaDtoConContexto(Apuesta apuesta, Participacion part,
-        ArrayList<Jornada> jornadas) {
-    for (Jornada j : jornadas) {
-        ApuestaDto dto = j.getApuestaDtoConContexto(apuesta, part);
-        if (dto != null)
-            return dto;
+    public ApuestaDto getApuestaDtoConContexto(Apuesta apuesta, Participacion part,
+            ArrayList<Jornada> jornadas) {
+        for (Jornada j : jornadas) {
+            ApuestaDto dto = j.getApuestaDtoConContexto(apuesta, part);
+            if (dto != null)
+                return dto;
+        }
+        return new ApuestaDto(apuesta, part.getCaballo().getNombre(), part.getNumero(), "", -1, "", "");
     }
-    return new ApuestaDto(apuesta, part.getCaballo().getNombre(), part.getNumero(), "", -1, "", "");
-}
 }

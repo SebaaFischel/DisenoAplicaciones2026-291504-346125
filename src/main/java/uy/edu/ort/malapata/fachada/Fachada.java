@@ -7,7 +7,6 @@ import uy.edu.ort.malapata.dto.ApuestaDto;
 import uy.edu.ort.malapata.dto.CarreraDto;
 import uy.edu.ort.malapata.excepciones.MalaPataException;
 import uy.edu.ort.malapata.observador.Observable;
-import uy.edu.ort.malapata.observador.Observador;
 import uy.edu.ort.malapata.modelo.*;
 import uy.edu.ort.malapata.sistemas.SistemaApuestas;
 import uy.edu.ort.malapata.sistemas.SistemaCarreras;
@@ -120,25 +119,11 @@ public class Fachada extends Observable {
     }
 
     public Apuesta iniciarApuesta(String usuarioJugador, int idJornada, int numeroCarrera,
-            int numeroParticipacion, String nombreModalidad,
-            double monto) throws MalaPataException {
-        Jugador jugador = sistemaUsuarios.buscarJugador(usuarioJugador);
-        if (jugador == null)
-            throw new MalaPataException("Jugador no encontrado.");
-
-        ArrayList<Jornada> jornadas = sistemaCarreras.getJornadas();
-        if (idJornada < 0 || idJornada >= jornadas.size())
-            throw new MalaPataException("Jornada no encontrada.");
-
-        Carrera carrera = jornadas.get(idJornada).buscarCarrera(numeroCarrera);
-        if (carrera == null || !carrera.permiteApuestas())
-            throw new MalaPataException("Esta carrera ya no recibe apuestas.");
-
-        Participacion participacion = carrera.buscarParticipacion(numeroParticipacion);
-        if (participacion == null)
-            throw new MalaPataException("Participación no encontrada.");
-
-        return sistemaApuestas.iniciarApuesta(jugador, carrera, participacion, nombreModalidad, monto);
+            int numeroParticipacion, String nombreModalidad, double monto) throws MalaPataException {
+        return sistemaApuestas.iniciarApuesta(
+                usuarioJugador, idJornada, numeroCarrera,
+                numeroParticipacion, nombreModalidad, monto,
+                sistemaUsuarios, sistemaCarreras);
     }
 
     public void confirmarApuesta(Apuesta apuesta, Participacion participacion,
@@ -154,9 +139,4 @@ public class Fachada extends Observable {
         return sistemaApuestas.getApuestaDtoConContexto(apuesta, part, getJornadas());
     }
 
-    @Override
-    public void actualizar(Object evento, Observable origen) {
-        if (Carrera.Eventos.cambioEstado.equals(evento))
-            avisar(Eventos.cambioEstadoCarrera);
-    }
 }
