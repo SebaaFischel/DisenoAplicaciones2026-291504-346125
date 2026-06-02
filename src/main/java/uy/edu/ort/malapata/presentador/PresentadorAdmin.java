@@ -169,7 +169,7 @@ public SseEmitter registrarSSE() {
 
 @Override
 public void actualizar(Object evento, Observable origen) {
-    if (Fachada.Eventos.cambioEstadoCarrera.equals(evento)) {
+    if (Fachada.Eventos.cambioEstadoCarrera.equals(evento) && jornadaActual != null) {
         conexionNavegador.enviarJSON(Commands.create(
                 jornada(jornadaActual)
         ));

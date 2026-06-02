@@ -86,21 +86,22 @@ public class Jornada {
         return ret;
     }
 
-    public ApuestaDto getApuestaDtoConContexto(Apuesta apuesta, Participacion participacion) {
-        String fechaJornada = fecha.toString();
-        for (Carrera c : carreras) {
-            if (c.getParticipaciones().contains(participacion)) {
-                return new ApuestaDto(
-                        apuesta,
-                        participacion.getCaballo().getNombre(),
-                        c.getNombre(),
-                        c.getNumero(),
-                        fechaJornada,
-                        c.getEstado().getValor());
-            }
+public ApuestaDto getApuestaDtoConContexto(Apuesta apuesta, Participacion participacion) {
+    String fechaJornada = fecha.toString();
+    for (Carrera c : carreras) {
+        if (c.getParticipaciones().contains(participacion)) {
+            return new ApuestaDto(
+                    apuesta,
+                    participacion.getCaballo().getNombre(),
+                    participacion.getNumero(),
+                    c.getNombre(),
+                    c.getNumero(),
+                    fechaJornada,
+                    c.getEstado().getValor());
         }
-        return null;
     }
+    return null;
+}
 
 public int getCantidadFinalizadas() {
     return getCarrerasFinalizadas().size();

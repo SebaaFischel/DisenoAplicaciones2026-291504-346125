@@ -57,25 +57,26 @@ public class Participacion {
         return resultado;
     }
 
-    public ArrayList<ApuestaDto> getApuestasDtoDelJugador(String usuarioJugador,
-            String nombreCarrera,
-            int numeroCarrera,
-            String fechaJornada,
-            String estadoCarrera) {
-        ArrayList<ApuestaDto> resultado = new ArrayList<>();
-        for (Apuesta a : apuestas) {
-            if (a.getJugador().getUsuario().equals(usuarioJugador)) {
-                resultado.add(new ApuestaDto(
-                        a,
-                        getCaballo().getNombre(),
-                        nombreCarrera,
-                        numeroCarrera,
-                        fechaJornada,
-                        estadoCarrera));
-            }
+public ArrayList<ApuestaDto> getApuestasDtoDelJugador(String usuarioJugador,
+        String nombreCarrera,
+        int numeroCarrera,
+        String fechaJornada,
+        String estadoCarrera) {
+    ArrayList<ApuestaDto> resultado = new ArrayList<>();
+    for (Apuesta a : apuestas) {
+        if (a.getJugador().getUsuario().equals(usuarioJugador)) {
+            resultado.add(new ApuestaDto(
+                    a,
+                    getCaballo().getNombre(),
+                    this.numero,
+                    nombreCarrera,
+                    numeroCarrera,
+                    fechaJornada,
+                    estadoCarrera));
         }
-        return resultado;
     }
+    return resultado;
+}
 
     public int getCantidadApuestas() {
         return apuestas.size();

@@ -14,7 +14,7 @@ import uy.edu.ort.malapata.sistemas.SistemaCarreras;
 import uy.edu.ort.malapata.sistemas.SistemaUsuarios;
 
 @Service
-public class Fachada extends Observable implements Observador {
+public class Fachada extends Observable {
 
     public enum Eventos {
         cambioEstadoCarrera
@@ -44,7 +44,6 @@ public class Fachada extends Observable implements Observador {
 
     public Carrera crearCarrera(Jornada jornada, String nombre) {
         Carrera carrera = sistemaCarreras.crearCarrera(jornada, nombre);
-        carrera.agregarObservador(this);
         return carrera;
     }
 

@@ -14,6 +14,9 @@ public class JornadaDto {
     private long cantidadFinalizadas;
     private List<CarreraDto> proximasCarreras = new ArrayList<>();
     private List<CarreraDto> carrerasFinalizadas = new ArrayList<>();
+    private int cantidadCarreras;
+    private int cantidadCarrerasFaltanCorrer;
+    private double balanceGeneral;
 
     public JornadaDto(Jornada jornada, int idJornada) {
         this.fecha = jornada.getFecha().toString();
@@ -21,6 +24,9 @@ public class JornadaDto {
         this.totalPagado = jornada.getTotalPagado();
         this.totalComisiones = jornada.getTotalComisiones();
         this.cantidadFinalizadas = jornada.getCantidadFinalizadas();
+        this.cantidadCarreras = jornada.getCarreras().size();
+        this.cantidadCarrerasFaltanCorrer = jornada.getProximasCarreras().size();
+        this.balanceGeneral = jornada.getTotalApostado() - jornada.getTotalPagado();
 
         for (Carrera c : jornada.getProximasCarreras())
             proximasCarreras.add(new CarreraDto(c, jornada, idJornada));
@@ -55,5 +61,17 @@ public class JornadaDto {
 
     public List<CarreraDto> getCarrerasFinalizadas() {
         return carrerasFinalizadas;
+    }
+
+    public int getCantidadCarreras() {
+        return cantidadCarreras;
+    }
+
+    public int getCantidadFaltanCorrer() {
+        return cantidadCarrerasFaltanCorrer;
+    }
+
+    public double getBalanceGeneral() {
+        return balanceGeneral;
     }
 }

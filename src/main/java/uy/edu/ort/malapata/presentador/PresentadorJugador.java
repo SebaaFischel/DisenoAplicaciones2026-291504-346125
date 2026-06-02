@@ -144,7 +144,7 @@ public class PresentadorJugador implements Observador {
 
     @Override
     public void actualizar(Object evento, Observable origen) {
-        if (Fachada.Eventos.cambioEstadoCarrera.equals(evento)) {
+        if (Fachada.Eventos.cambioEstadoCarrera.equals(evento) && jugadorActual != null) {
             conexionNavegador.enviarJSON(Commands.create(
                     jugador(jugadorActual),
                     carrerasDisponibles(),

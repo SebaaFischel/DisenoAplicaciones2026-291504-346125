@@ -17,28 +17,30 @@ public class ApuestaDto {
     private int numeroCarrera;
     private String fechaJornada;
     private String estadoCarrera;
+    private int numeroCaballo;
 
-    public ApuestaDto(Apuesta apuesta, String nombreCaballo, String nombreCarrera,
-            int numeroCarrera, String fechaJornada, String estadoCarrera) {
-        this.caballo = nombreCaballo;
-        this.carrera = nombreCarrera;
-        this.modalidad = apuesta.getNombre();
-        this.monto = apuesta.getMonto();
-        this.costo = apuesta.calcularDescuento();
-        this.dividendoAlCierre = apuesta.getDividendoCaballo();
-        this.montoCobrado = apuesta.getMontoCobrado();
-        this.liquidada = apuesta.isLiquidada();
-        this.numeroCarrera = numeroCarrera;
-        this.fechaJornada = fechaJornada;
-        this.estadoCarrera = estadoCarrera;
-    }
+public ApuestaDto(Apuesta apuesta, String nombreCaballo, int numeroCaballo,
+        String nombreCarrera, int numeroCarrera, String fechaJornada, String estadoCarrera) {
+    this.caballo = nombreCaballo;
+    this.numeroCaballo = numeroCaballo;
+    this.carrera = nombreCarrera;
+    this.modalidad = apuesta.getNombre();
+    this.monto = apuesta.getMonto();
+    this.costo = apuesta.calcularDescuento();
+    this.dividendoAlCierre = apuesta.getDividendoCaballo();
+    this.montoCobrado = apuesta.getMontoCobrado();
+    this.liquidada = apuesta.isLiquidada();
+    this.numeroCarrera = numeroCarrera;
+    this.fechaJornada = fechaJornada;
+    this.estadoCarrera = estadoCarrera;
+}
 
     public static List<ApuestaDto> listaDtos(List<Apuesta> lista,
             String nombreCaballo,
             String nombreCarrera) {
         List<ApuestaDto> dtos = new ArrayList<>();
         for (Apuesta a : lista)
-            dtos.add(new ApuestaDto(a, nombreCaballo, nombreCarrera, -1, "", ""));
+            dtos.add(new ApuestaDto(a, nombreCaballo, 0, nombreCarrera, -1, "", ""));
         return dtos;
     }
 
@@ -84,5 +86,9 @@ public class ApuestaDto {
 
     public String getEstadoCarrera() {
         return estadoCarrera;
+    }
+
+    public int getNumeroCaballo() {
+        return numeroCaballo;
     }
 }

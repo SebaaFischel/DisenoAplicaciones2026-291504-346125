@@ -18,6 +18,8 @@ public class CarreraDto {
     private String fechaJornada;
     private int idJornada;
     private List<ParticipacionDto> participaciones = new ArrayList<>();
+    private int cantidadCaballos;
+    private double dividendoFinalGanador;
 
     public CarreraDto(Carrera carrera, Jornada jornada, int idJornada) {
         this.numero = carrera.getNumero();
@@ -27,6 +29,7 @@ public class CarreraDto {
         this.cantidadApuestas = carrera.getCantidadApuestas();
         this.fechaJornada = jornada.getFecha().toString();
         this.idJornada = idJornada;
+        this.cantidadCaballos = carrera.getParticipaciones().size();
 
         if (carrera.getGanador() != null)
             this.ganador = carrera.getGanador().getCaballo().getNombre();
@@ -36,6 +39,9 @@ public class CarreraDto {
 
         for (Participacion p : carrera.getParticipaciones())
             participaciones.add(new ParticipacionDto(p));
+
+        if (carrera.getGanador() != null)
+            this.dividendoFinalGanador = carrera.getGanador().getValorDividendo();
     }
 
     public static List<CarreraDto> listaDtos(List<Carrera> lista) {
@@ -83,5 +89,13 @@ public class CarreraDto {
 
     public List<ParticipacionDto> getParticipaciones() {
         return participaciones;
+    }
+
+    public int getCantidadCaballos() {
+        return cantidadCaballos;
+    }
+
+    public double getDividendoFinalGanador() {
+        return dividendoFinalGanador;
     }
 }

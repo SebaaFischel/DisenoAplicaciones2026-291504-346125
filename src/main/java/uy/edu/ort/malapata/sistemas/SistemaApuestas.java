@@ -65,13 +65,13 @@ public class SistemaApuestas {
         return dtos;
     }
 
-    public ApuestaDto getApuestaDtoConContexto(Apuesta apuesta, Participacion part,
-            ArrayList<Jornada> jornadas) {
-        for (Jornada j : jornadas) {
-            ApuestaDto dto = j.getApuestaDtoConContexto(apuesta, part);
-            if (dto != null)
-                return dto;
-        }
-        return new ApuestaDto(apuesta, part.getCaballo().getNombre(), "", -1, "", "");
+public ApuestaDto getApuestaDtoConContexto(Apuesta apuesta, Participacion part,
+        ArrayList<Jornada> jornadas) {
+    for (Jornada j : jornadas) {
+        ApuestaDto dto = j.getApuestaDtoConContexto(apuesta, part);
+        if (dto != null)
+            return dto;
     }
+    return new ApuestaDto(apuesta, part.getCaballo().getNombre(), part.getNumero(), "", -1, "", "");
+}
 }

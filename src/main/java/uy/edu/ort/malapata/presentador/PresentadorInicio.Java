@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
-import uy.edu.ort.agenda.modelo.Sesion;
 import uy.edu.ort.malapata.fachada.Fachada;
 
 @Controller
