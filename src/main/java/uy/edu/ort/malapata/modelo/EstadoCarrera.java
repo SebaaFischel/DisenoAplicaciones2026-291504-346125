@@ -1,57 +1,25 @@
 package uy.edu.ort.malapata.modelo;
 
-public class EstadoCarrera {
+import uy.edu.ort.malapata.excepciones.MalaPataException;
 
-    public static final String DEFINIDA = "DEFINIDA";
-    public static final String ABIERTA = "ABIERTA";
-    public static final String ESTABLE = "ESTABLE";
-    public static final String CERRADA = "CERRADA";
-    public static final String FINALIZADA = "FINALIZADA";
+public abstract class EstadoCarrera {
 
-    private String estado;
+    private Carrera carrera;
 
-    public EstadoCarrera(String valor) {
-        this.estado = valor;
+    public EstadoCarrera(Carrera carrera) {
+        this.carrera = carrera;
     }
 
-    public String getValor() {
-        return estado;
+    public Carrera getCarrera() {
+        return carrera;
     }
 
-    public boolean esAbierta() {
-    return estado.equals(ABIERTA);
-}
-
-public boolean esEstable() {
-    return estado.equals(ESTABLE);
-}
-
-    public boolean puedeAbrirse() {
-        return estado.equals(DEFINIDA);
-    }
-
-    public boolean puedeFinalizarse() {
-        return estado.equals(CERRADA);
-    }
-
-    public boolean puedeCerrarse() {
-        return estado.equals(ESTABLE);
-    }
-
-     public boolean esFinalizada() {
-        return estado.equals(FINALIZADA);
-    }
-
-     public boolean esFinalOCerrada() {
-        return estado.equals(CERRADA) || estado.equals(FINALIZADA);
-    }
-
-    public boolean permiteApuestas() {
-        return estado.equals(ABIERTA) || estado.equals(ESTABLE);
-    }
-
-    @Override
-    public String toString() {
-        return estado;
-    }
+    public abstract void abrir()                      throws MalaPataException;
+    public abstract void cerrar()                     throws MalaPataException;
+    public abstract void finalizar(int numeroGanador) throws MalaPataException;
+    public abstract void actualizarEstado();
+    public abstract boolean permiteApuestas();
+    public abstract boolean esFinalizada();
+    public abstract boolean esFinalOCerrada();
+    public abstract String getValor();
 }
