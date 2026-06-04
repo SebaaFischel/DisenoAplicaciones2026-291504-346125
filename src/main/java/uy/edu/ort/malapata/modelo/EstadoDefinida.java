@@ -25,10 +25,27 @@ public class EstadoDefinida extends EstadoCarrera {
         throw new MalaPataException("No se puede finalizar: la carrera debe estar Cerrada.");
     }
 
-    @Override public void actualizarEstado() {}
+    @Override
+    public void actualizarEstado() {
+    }
 
-    @Override public boolean permiteApuestas() { return false; }
-    @Override public boolean esFinalizada()    { return false; }
-    @Override public boolean esFinalOCerrada() { return false; }
-    @Override public String  getValor()        { return "DEFINIDA"; }
+    @Override
+    public boolean permiteApuestas() {
+        return false;
+    }
+
+    @Override
+    public boolean esFinalizada() {
+        return false;
+    }
+
+    @Override
+    public boolean esFinalOCerrada() {
+        return false;
+    }
+
+    @Override
+    public String getValor() {
+        return "DEFINIDA";
+    }
 }

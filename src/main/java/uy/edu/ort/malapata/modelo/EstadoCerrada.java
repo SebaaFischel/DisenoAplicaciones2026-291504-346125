@@ -27,10 +27,27 @@ public class EstadoCerrada extends EstadoCarrera {
         getCarrera().cambiarEstado(new EstadoFinalizada(getCarrera()));
     }
 
-    @Override public void actualizarEstado() {}
+    @Override
+    public void actualizarEstado() {
+    }
 
-    @Override public boolean permiteApuestas() { return false; }
-    @Override public boolean esFinalizada()    { return false; }
-    @Override public boolean esFinalOCerrada() { return true;  }
-    @Override public String  getValor()        { return "CERRADA"; }
+    @Override
+    public boolean permiteApuestas() {
+        return false;
+    }
+
+    @Override
+    public boolean esFinalizada() {
+        return false;
+    }
+
+    @Override
+    public boolean esFinalOCerrada() {
+        return true;
+    }
+
+    @Override
+    public String getValor() {
+        return "CERRADA";
+    }
 }

@@ -20,14 +20,37 @@ public class Carrera {
         this.estado = new EstadoDefinida(this);
     }
 
-    public int getNumero()                               { return numero; }
-    public String getNombre()                            { return nombre; }
-    public EstadoCarrera getEstado()                     { return estado; }
-    public ArrayList<Participacion> getParticipaciones() { return participaciones; }
-    public Participacion getGanador()                    { return ganador; }
-    public LocalTime getHoraFinalizacion()               { return horaFinalizacion; }
-    public boolean esFinalizada()                        { return estado.esFinalizada(); }
-    public boolean permiteApuestas()                     { return estado.permiteApuestas(); }
+    public int getNumero() {
+        return numero;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public EstadoCarrera getEstado() {
+        return estado;
+    }
+
+    public ArrayList<Participacion> getParticipaciones() {
+        return participaciones;
+    }
+
+    public Participacion getGanador() {
+        return ganador;
+    }
+
+    public LocalTime getHoraFinalizacion() {
+        return horaFinalizacion;
+    }
+
+    public boolean esFinalizada() {
+        return estado.esFinalizada();
+    }
+
+    public boolean permiteApuestas() {
+        return estado.permiteApuestas();
+    }
 
     protected void cambiarEstado(EstadoCarrera nuevoEstado) {
         this.estado = nuevoEstado;
@@ -57,7 +80,8 @@ public class Carrera {
 
     public Participacion buscarParticipacion(int numero) {
         for (Participacion p : participaciones)
-            if (p.getNumero() == numero) return p;
+            if (p.getNumero() == numero)
+                return p;
         return null;
     }
 
@@ -72,18 +96,21 @@ public class Carrera {
 
     public double getTotalApostado() {
         double total = 0;
-        for (Participacion p : participaciones) total += p.getTotalApostadoEnParticipacion();
+        for (Participacion p : participaciones)
+            total += p.getTotalApostadoEnParticipacion();
         return total;
     }
 
     public int getCantidadApuestas() {
         int total = 0;
-        for (Participacion p : participaciones) total += p.getCantidadApuestas();
+        for (Participacion p : participaciones)
+            total += p.getCantidadApuestas();
         return total;
     }
 
     public double getTotalPagado() {
-        if (!esFinalizada() || ganador == null) return 0;
+        if (!esFinalizada() || ganador == null)
+            return 0;
         return ganador.getTotalPagado();
     }
 

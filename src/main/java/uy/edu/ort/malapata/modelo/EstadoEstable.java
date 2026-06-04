@@ -33,8 +33,23 @@ public class EstadoEstable extends EstadoCarrera {
         }
     }
 
-    @Override public boolean permiteApuestas() { return true;  }
-    @Override public boolean esFinalizada()    { return false; }
-    @Override public boolean esFinalOCerrada() { return false; }
-    @Override public String  getValor()        { return "ESTABLE"; }
+    @Override
+    public boolean permiteApuestas() {
+        return true;
+    }
+
+    @Override
+    public boolean esFinalizada() {
+        return false;
+    }
+
+    @Override
+    public boolean esFinalOCerrada() {
+        return false;
+    }
+
+    @Override
+    public String getValor() {
+        return "ESTABLE";
+    }
 }

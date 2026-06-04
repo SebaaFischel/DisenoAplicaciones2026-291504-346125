@@ -26,13 +26,29 @@ public class EstadoAbierta extends EstadoCarrera {
     @Override
     public void actualizarEstado() {
         for (Participacion p : getCarrera().getParticipaciones()) {
-            if (!p.isDividendoValido()) return;
+            if (!p.isDividendoValido())
+                return;
         }
         getCarrera().cambiarEstado(new EstadoEstable(getCarrera()));
     }
 
-    @Override public boolean permiteApuestas() { return true;  }
-    @Override public boolean esFinalizada()    { return false; }
-    @Override public boolean esFinalOCerrada() { return false; }
-    @Override public String  getValor()        { return "ABIERTA"; }
+    @Override
+    public boolean permiteApuestas() {
+        return true;
+    }
+
+    @Override
+    public boolean esFinalizada() {
+        return false;
+    }
+
+    @Override
+    public boolean esFinalOCerrada() {
+        return false;
+    }
+
+    @Override
+    public String getValor() {
+        return "ABIERTA";
+    }
 }
