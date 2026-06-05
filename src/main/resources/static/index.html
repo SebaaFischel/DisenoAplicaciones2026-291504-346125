@@ -70,6 +70,10 @@
       navegar(destino);
     });
 
+    view.handler('mostrarLogin', () => {
+      // La vista de inicio no necesita cambiar; el comando confirma que el login está disponible.
+    });
+
     view.handler('usuarioNoAutenticado', (destino) => {
       navegar(destino || 'index.html');
     });
