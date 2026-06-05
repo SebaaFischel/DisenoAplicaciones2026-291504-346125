@@ -117,7 +117,7 @@ public class Fachada extends Observable {
         return ComisionHipodromo.getInstancia().getPorcentaje();
     }
 
-    public ArrayList<String> getModalidades() {
+    public ArrayList<Modalidad> getModalidades() {
         return sistemaApuestas.getModalidades();
     }
 

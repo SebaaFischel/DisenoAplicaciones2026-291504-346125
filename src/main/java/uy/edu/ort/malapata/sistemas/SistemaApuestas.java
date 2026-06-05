@@ -7,17 +7,17 @@ import uy.edu.ort.malapata.modelo.*;
 
 public class SistemaApuestas {
 
-    private ArrayList<String> modalidades = new ArrayList<>();
+private ArrayList<Modalidad> modalidades = new ArrayList<>();
 
-    public SistemaApuestas() {
-        modalidades.add("Simple");
-        modalidades.add("Triple");
-        modalidades.add("Super");
-    }
+public SistemaApuestas() {
+    modalidades.add(new ModalidadSimple());
+    modalidades.add(new ModalidadTriple());
+    modalidades.add(new ModalidadSuper());
+}
 
-    public ArrayList<String> getModalidades() {
-        return modalidades;
-    }
+public ArrayList<Modalidad> getModalidades() {
+    return modalidades;
+}
 
     public Apuesta iniciarApuesta(String usuarioJugador, int idJornada, int numeroCarrera,
             int numeroParticipacion, String nombreModalidad, double monto,
@@ -51,9 +51,6 @@ public class SistemaApuestas {
         switch (nombreModalidad.toLowerCase()) {
             case "simple":
                 return new ApuestaSimple(jugador, monto);
-            case "triple":
-                return new ApuestaTriple(jugador, monto,
-                        participacion.getTotalApostadoEnParticipacion());
             case "super":
                 return new ApuestaSuper(jugador, monto);
             default:

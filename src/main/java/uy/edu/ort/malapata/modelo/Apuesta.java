@@ -56,8 +56,8 @@ public abstract class Apuesta {
         return calculadorDescuento.calcular(montoApostado, dividendoCaballo);
     }
 
-    public double calcularPremio(double dividendo) {
-        return calculadorPremio.calcular(montoApostado, dividendo);
+    public double calcularPremio(double dividendo,double totalApostadoAlCaballo) {
+        return calculadorPremio.calcular(montoApostado, dividendo, totalApostadoAlCaballo);
     }
 
     public abstract String getNombre();
@@ -73,7 +73,7 @@ public abstract class Apuesta {
 
     public void liquidar(double dividendoCierre, double totalApostadoAlCaballo) {
         this.dividendoCaballo = dividendoCierre;
-        double pago = calculadorPremio.calcular(montoApostado, dividendoCierre);
+        double pago = calculadorPremio.calcular(montoApostado, dividendoCierre, totalApostadoAlCaballo);
         jugador.acreditarGanancia(pago);
         this.montoCobrado = pago;
         this.estado = new EstadoApuesta(EstadoApuesta.LIQUIDADA);
