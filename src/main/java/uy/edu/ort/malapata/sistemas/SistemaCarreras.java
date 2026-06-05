@@ -102,4 +102,15 @@ public class SistemaCarreras {
         if (carrera == null) throw new MalaPataException("No hay carrera seleccionada.");
         return carrera;
     }
+
+    public Carrera buscarCarreraPorId(int idJornada, int numeroCarrera) {
+    if (idJornada < 0 || idJornada >= jornadas.size()) return null;
+    return jornadas.get(idJornada).buscarCarrera(numeroCarrera);
+}
+
+public Participacion buscarParticipacionPorId(int idJornada, int numeroCarrera, int numeroParticipacion) {
+    Carrera carrera = buscarCarreraPorId(idJornada, numeroCarrera);
+    if (carrera == null) return null;
+    return carrera.buscarParticipacion(numeroParticipacion);
+}
 }

@@ -96,17 +96,17 @@ public class Fachada extends Observable {
 
     public void abrirCarrera(Jornada jornada, int numeroCarrera) throws MalaPataException {
         sistemaCarreras.abrirCarrera(jornada, numeroCarrera);
-          avisar(Eventos.cambioEstadoCarrera);
+        avisar(Eventos.cambioEstadoCarrera);
     }
 
     public void cerrarCarrera(Jornada jornada, int numeroCarrera) throws MalaPataException {
         sistemaCarreras.cerrarCarrera(jornada, numeroCarrera);
-          avisar(Eventos.cambioEstadoCarrera);
+        avisar(Eventos.cambioEstadoCarrera);
     }
 
     public void finalizarCarrera(Jornada jornada, int numeroCarrera, int numeroGanador) throws MalaPataException {
         sistemaCarreras.finalizarCarrera(jornada, numeroCarrera, numeroGanador);
-          avisar(Eventos.cambioEstadoCarrera);
+        avisar(Eventos.cambioEstadoCarrera);
     }
 
     public ArrayList<CarreraDto> getCarrerasDtoDisponiblesParaApostar() {
@@ -132,7 +132,7 @@ public class Fachada extends Observable {
     public void confirmarApuesta(Apuesta apuesta, Participacion participacion,
             Carrera carrera, String contrasena) throws MalaPataException {
         sistemaApuestas.confirmarApuesta(apuesta, participacion, carrera, contrasena);
-          avisar(Eventos.cambioEstadoCarrera);
+        avisar(Eventos.cambioEstadoCarrera);
     }
 
     public ArrayList<ApuestaDto> getApuestasDtoDelJugador(String usuarioJugador) {
@@ -141,6 +141,10 @@ public class Fachada extends Observable {
 
     public ApuestaDto getApuestaDtoConContexto(Apuesta apuesta, Participacion part) {
         return sistemaApuestas.getApuestaDtoConContexto(apuesta, part, getJornadas());
+    }
+
+    public Jornada getJornadaPorId(int idJornada) {
+        return sistemaCarreras.getJornadaPorId(idJornada);
     }
 
 }

@@ -5,17 +5,17 @@ import java.util.Date;
 public class Sesion {
 
     private Date fechaIngreso = new Date();
-    private Administrador administrador;
+    private Usuario usuario ;
 
-    public Sesion(Administrador administrador) {
-        this.administrador = administrador;
+    public Sesion(Usuario  usuario) {
+        this.usuario  = usuario ;
     }
 
     public Date getFechaIngreso() {
         return fechaIngreso;
     }
 
-    public Administrador getAdministrador() {
-        return administrador;
+    public Usuario getUsuario() {
+        return usuario ;
     }
 }

@@ -66,9 +66,9 @@ public class PresentadorJugador implements Observador {
 
         apuestaEnCurso = fachada.iniciarApuesta(jugador.getUsuario(), idJornada,
                 numeroCarrera, numeroParticipacion, modalidad, monto);
-        carreraEnCurso = fachada.getJornadas().get(idJornada).buscarCarrera(numeroCarrera);
+        Jornada jornada = fachada.getJornadaPorId(idJornada);
+        carreraEnCurso = fachada.buscarCarrera(jornada, numeroCarrera);
         participacionEnCurso = carreraEnCurso.buscarParticipacion(numeroParticipacion);
-
         return Commands.create(
                 mostrarConfirmacion(apuestaEnCurso, participacionEnCurso),
                 jugador(jugador));

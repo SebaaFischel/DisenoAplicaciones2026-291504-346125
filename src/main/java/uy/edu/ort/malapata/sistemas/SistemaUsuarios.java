@@ -69,7 +69,7 @@ public class SistemaUsuarios {
 
     private Sesion buscarSesion(String usuario) {
         for (Sesion s : sesiones) {
-            if (s.getAdministrador().getUsuario().equals(usuario)) return s;
+            if (s.getUsuario().getUsuario().equals(usuario)) return s;
         }
         return null;
     }

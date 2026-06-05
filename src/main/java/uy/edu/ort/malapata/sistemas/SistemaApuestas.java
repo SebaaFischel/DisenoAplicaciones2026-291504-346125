@@ -7,17 +7,17 @@ import uy.edu.ort.malapata.modelo.*;
 
 public class SistemaApuestas {
 
-private ArrayList<Modalidad> modalidades = new ArrayList<>();
+    private ArrayList<Modalidad> modalidades = new ArrayList<>();
 
-public SistemaApuestas() {
-    modalidades.add(new ModalidadSimple());
-    modalidades.add(new ModalidadTriple());
-    modalidades.add(new ModalidadSuper());
-}
+    public SistemaApuestas() {
+        modalidades.add(new ModalidadSimple());
+        modalidades.add(new ModalidadTriple());
+        modalidades.add(new ModalidadSuper());
+    }
 
-public ArrayList<Modalidad> getModalidades() {
-    return modalidades;
-}
+    public ArrayList<Modalidad> getModalidades() {
+        return modalidades;
+    }
 
     public Apuesta iniciarApuesta(String usuarioJugador, int idJornada, int numeroCarrera,
             int numeroParticipacion, String nombreModalidad, double monto,
@@ -40,22 +40,18 @@ public ArrayList<Modalidad> getModalidades() {
         if (participacion == null)
             throw new MalaPataException("Participación no encontrada.");
 
-        Apuesta apuesta = crearApuesta(jugador, monto, nombreModalidad, participacion);
+        Modalidad modalidad = buscarModalidad(nombreModalidad);
+        Apuesta apuesta = modalidad.crearApuesta(jugador, monto, participacion);
         apuesta.validar(jugador, carrera);
         return apuesta;
     }
 
-    private Apuesta crearApuesta(Jugador jugador, double monto,
-            String nombreModalidad, Participacion participacion)
-            throws MalaPataException {
-        switch (nombreModalidad.toLowerCase()) {
-            case "simple":
-                return new ApuestaSimple(jugador, monto);
-            case "super":
-                return new ApuestaSuper(jugador, monto);
-            default:
-                throw new MalaPataException("Modalidad no encontrada.");
+        private Modalidad buscarModalidad(String nombre) throws MalaPataException {
+        for (Modalidad m : modalidades) {
+            if (m.getNombre().equals(nombre))
+                return m;
         }
+        throw new MalaPataException("Modalidad no encontrada.");
     }
 
     public void confirmarApuesta(Apuesta apuesta, Participacion participacion,
