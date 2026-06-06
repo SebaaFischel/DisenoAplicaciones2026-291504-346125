@@ -13,27 +13,27 @@ public class ApuestaDto {
     private double costo;
     private double dividendoAlCierre;
     private double montoCobrado;
-    private boolean liquidada;
+    private String liquidada;
     private int numeroCarrera;
     private String fechaJornada;
     private String estadoCarrera;
     private int numeroCaballo;
 
-public ApuestaDto(Apuesta apuesta, String nombreCaballo, int numeroCaballo,
-        String nombreCarrera, int numeroCarrera, String fechaJornada, String estadoCarrera) {
-    this.caballo = nombreCaballo;
-    this.numeroCaballo = numeroCaballo;
-    this.carrera = nombreCarrera;
-    this.modalidad = apuesta.getNombre();
-    this.monto = apuesta.getMonto();
-    this.costo = apuesta.calcularDescuento();
-    this.dividendoAlCierre = apuesta.getDividendoCaballo();
-    this.montoCobrado = apuesta.getMontoCobrado();
-    this.liquidada = apuesta.isLiquidada();
-    this.numeroCarrera = numeroCarrera;
-    this.fechaJornada = fechaJornada;
-    this.estadoCarrera = estadoCarrera;
-}
+    public ApuestaDto(Apuesta apuesta, String nombreCaballo, int numeroCaballo,
+            String nombreCarrera, int numeroCarrera, String fechaJornada, String estadoCarrera) {
+        this.caballo = nombreCaballo;
+        this.numeroCaballo = numeroCaballo;
+        this.carrera = nombreCarrera;
+        this.modalidad = apuesta.getNombre();
+        this.monto = apuesta.getMonto();
+        this.costo = apuesta.calcularDescuento();
+        this.dividendoAlCierre = apuesta.getDividendoCaballo();
+        this.montoCobrado = apuesta.getMontoCobrado();
+        this.liquidada = apuesta.isLiquidada() ? "Sí" : "No";
+        this.numeroCarrera = numeroCarrera;
+        this.fechaJornada = fechaJornada;
+        this.estadoCarrera = estadoCarrera;
+    }
 
     public static List<ApuestaDto> listaDtos(List<Apuesta> lista,
             String nombreCaballo,
@@ -72,7 +72,7 @@ public ApuestaDto(Apuesta apuesta, String nombreCaballo, int numeroCaballo,
         return montoCobrado;
     }
 
-    public boolean isLiquidada() {
+    public String getLiquidada() {
         return liquidada;
     }
 
