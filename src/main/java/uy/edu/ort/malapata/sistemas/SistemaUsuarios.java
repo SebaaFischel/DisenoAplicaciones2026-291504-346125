@@ -40,6 +40,9 @@ public class SistemaUsuarios {
         Jugador jugador = buscarJugador(usuario);
         if (jugador == null || !jugador.validarContrasena(contrasena))
             throw new MalaPataException("Acceso denegado");
+        if (buscarSesion(usuario) != null)
+            throw new MalaPataException("El usuario ya tiene una sesión activa.");
+        sesiones.add(new Sesion(jugador));
         return jugador;
     }
 

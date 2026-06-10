@@ -53,7 +53,7 @@ public abstract class Apuesta {
     }
 
     public double calcularDescuento() {
-        return calculadorDescuento.calcular(montoApostado, dividendoCaballo);
+        return calculadorDescuento.calcular(montoApostado);
     }
 
     public double calcularPremio(double dividendo,double totalApostadoAlCaballo) {
