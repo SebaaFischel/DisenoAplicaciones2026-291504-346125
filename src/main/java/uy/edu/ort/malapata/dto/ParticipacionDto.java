@@ -7,40 +7,27 @@ public class ParticipacionDto {
     private int numero;
     private String caballo;
     private double dividendo;
-    private boolean dividendoValido;
+    private String dividendoValido;  
     private double totalApostado;
     private int cantidadApuestas;
 
     public ParticipacionDto(Participacion p) {
-        this.numero = p.getNumero();
-        this.caballo = p.getCaballo().getNombre();
-        this.dividendo = p.getValorDividendo();
-        this.dividendoValido = p.isDividendoValido();
-        this.totalApostado = p.getTotalApostadoEnParticipacion();
+        this.numero           = p.getNumero();
+        this.caballo          = p.getCaballo().getNombre();
+        this.dividendo        = redondear(p.getValorDividendo());
+        this.dividendoValido  = p.isDividendoValido() ? "Sí" : "No";
+        this.totalApostado    = redondear(p.getTotalApostadoEnParticipacion());
         this.cantidadApuestas = p.getCantidadApuestas();
     }
 
-    public int getNumero() {
-        return numero;
+    private double redondear(double valor) {
+        return Math.round(valor * 100.0) / 100.0;
     }
 
-    public String getCaballo() {
-        return caballo;
-    }
-
-    public double getDividendo() {
-        return dividendo;
-    }
-
-    public boolean isDividendoValido() {
-        return dividendoValido;
-    }
-
-    public double getTotalApostado() {
-        return totalApostado;
-    }
-
-    public int getCantidadApuestas() {
-        return cantidadApuestas;
-    }
+    public int getNumero()           { return numero; }
+    public String getCaballo()       { return caballo; }
+    public double getDividendo()     { return dividendo; }
+    public String getDividendoValido(){ return dividendoValido; }
+    public double getTotalApostado() { return totalApostado; }
+    public int getCantidadApuestas() { return cantidadApuestas; }
 }
