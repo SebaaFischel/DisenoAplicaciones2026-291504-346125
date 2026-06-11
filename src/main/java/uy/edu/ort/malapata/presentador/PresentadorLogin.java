@@ -12,12 +12,6 @@ import uy.edu.ort.malapata.modelo.*;
 @RequestMapping("/login")
 public class PresentadorLogin {
 
-    private final Fachada fachada;
-
-    public PresentadorLogin(Fachada fachada) {
-        this.fachada = fachada;
-    }
-
     @GetMapping("/vistaConectada")
     public Commands vistaConectada() {
         return Commands.create(new Command("mostrarLogin", true));
@@ -27,7 +21,7 @@ public class PresentadorLogin {
     public Commands login(HttpSession sesionHttp,
                           @RequestParam String usuario,
                           @RequestParam String contrasena) throws MalaPataException {
-        Jugador jugador = fachada.loginJugador(usuario, contrasena);
+        Jugador jugador = Fachada.getInstancia().loginJugador(usuario, contrasena);
         sesionHttp.setAttribute("jugador", jugador);
         return Commands.create(new Command("loginExitoso", "jugador.html"));
     }
@@ -36,7 +30,7 @@ public class PresentadorLogin {
     public Commands logout(HttpSession sesionHttp) {
         Jugador jugador = (Jugador) sesionHttp.getAttribute("jugador");
         if (jugador != null) {
-            fachada.logoutJugador(jugador.getUsuario());
+            Fachada.getInstancia().logoutJugador(jugador.getUsuario());
             sesionHttp.removeAttribute("jugador");
             sesionHttp.invalidate();
         }
@@ -47,7 +41,7 @@ public class PresentadorLogin {
     public Commands loginAdmin(HttpSession sesionHttp,
                                @RequestParam String nombre,
                                @RequestParam String contrasenia) throws MalaPataException {
-        Administrador admin = fachada.loginAdministrador(nombre, contrasenia);
+        Administrador admin = Fachada.getInstancia().loginAdministrador(nombre, contrasenia);
         sesionHttp.setAttribute("usuarioAdmin", admin);
         return Commands.create(new Command("loginExitoso", "admin.html"));
     }
@@ -56,7 +50,7 @@ public class PresentadorLogin {
     public Commands logoutAdmin(HttpSession sesionHttp) {
         Administrador admin = (Administrador) sesionHttp.getAttribute("usuarioAdmin");
         if (admin != null) {
-            fachada.logoutAdministrador(admin.getUsuario());
+            Fachada.getInstancia().logoutAdministrador(admin.getUsuario());
             sesionHttp.removeAttribute("usuarioAdmin");
             sesionHttp.invalidate();
         }

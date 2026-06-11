@@ -19,7 +19,6 @@ import org.springframework.http.MediaType;
 @RequestMapping("/jugador")
 public class PresentadorJugador implements Observador {
 
-    private final Fachada fachada;
     private Apuesta apuestaEnCurso = null;
     private Participacion participacionEnCurso = null;
     private Carrera carreraEnCurso = null;
@@ -27,10 +26,8 @@ public class PresentadorJugador implements Observador {
 
     private final ConexionNavegador conexionNavegador;
 
-    public PresentadorJugador(Fachada fachada, ConexionNavegador conexionNavegador) {
-        this.fachada = fachada;
+    public PresentadorJugador(ConexionNavegador conexionNavegador) {
         this.conexionNavegador = conexionNavegador;
-        this.fachada.agregarObservador(this);
     }
 
     @GetMapping(value = "/registrarSSE", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -44,12 +41,19 @@ public class PresentadorJugador implements Observador {
             @SessionAttribute(name = "jugador", required = false) Jugador jugador) {
         if (jugador == null)
             return Commands.create(new Command("usuarioNoAutenticado", "index.html"));
+
+        Fachada.getInstancia().agregarObservador(this);
         this.jugadorActual = jugador;
         return Commands.create(
                 jugador(jugador),
                 carrerasDisponibles(),
                 modalidades(),
                 misApuestas(jugador));
+    }
+
+        @PostMapping("/vistaCerrada")
+    public void vistaCerrada(){
+        Fachada.getInstancia().quitarObservador(this);
     }
 
     @PostMapping("/iniciarApuesta")
@@ -64,10 +68,10 @@ public class PresentadorJugador implements Observador {
         if (apuestaEnCurso != null)
             throw new MalaPataException("Debe confirmar o descartar la apuesta anterior");
 
-        apuestaEnCurso = fachada.iniciarApuesta(jugador.getUsuario(), idJornada,
+        apuestaEnCurso = Fachada.getInstancia().iniciarApuesta(jugador.getUsuario(), idJornada,
                 numeroCarrera, numeroParticipacion, modalidad, monto);
-        Jornada jornada = fachada.getJornadaPorId(idJornada);
-        carreraEnCurso = fachada.buscarCarrera(jornada, numeroCarrera);
+        Jornada jornada = Fachada.getInstancia().getJornadaPorId(idJornada);
+        carreraEnCurso = Fachada.getInstancia().buscarCarrera(jornada, numeroCarrera);
         participacionEnCurso = carreraEnCurso.buscarParticipacion(numeroParticipacion);
         return Commands.create(
                 mostrarConfirmacion(apuestaEnCurso, participacionEnCurso),
@@ -81,11 +85,11 @@ public class PresentadorJugador implements Observador {
         validarSesion(jugador);
         if (apuestaEnCurso == null)
             throw new MalaPataException("No hay apuesta en curso");
-        fachada.confirmarApuesta(apuestaEnCurso, participacionEnCurso, carreraEnCurso, contrasena);
+        Fachada.getInstancia().confirmarApuesta(apuestaEnCurso, participacionEnCurso, carreraEnCurso, contrasena);
         apuestaEnCurso = null;
         participacionEnCurso = null;
         carreraEnCurso = null;
-        Jugador actualizado = fachada.buscarJugador(jugador.getUsuario());
+        Jugador actualizado = Fachada.getInstancia().buscarJugador(jugador.getUsuario());
         return Commands.create(
                 ocultarConfirmacion(),
                 jugador(actualizado),
@@ -112,21 +116,21 @@ public class PresentadorJugador implements Observador {
     }
 
     private Command carrerasDisponibles() {
-        List<CarreraDto> dtos = fachada.getCarrerasDtoDisponiblesParaApostar();
+        List<CarreraDto> dtos = Fachada.getInstancia().getCarrerasDtoDisponiblesParaApostar();
         return new Command("carrerasDisponibles", dtos);
     }
 
     private Command modalidades() {
-        return new Command("modalidades", ModalidadDto.listaDtos(fachada.getModalidades()));
+        return new Command("modalidades", ModalidadDto.listaDtos(Fachada.getInstancia().getModalidades()));
     }
 
     private Command misApuestas(Jugador jugador) {
-        List<ApuestaDto> dtos = fachada.getApuestasDtoDelJugador(jugador.getUsuario());
+        List<ApuestaDto> dtos = Fachada.getInstancia().getApuestasDtoDelJugador(jugador.getUsuario());
         return new Command("misApuestas", dtos);
     }
 
     private Command mostrarConfirmacion(Apuesta apuesta, Participacion part) {
-        return new Command("confirmacion", fachada.getApuestaDtoConContexto(apuesta, part));
+        return new Command("confirmacion", Fachada.getInstancia().getApuestaDtoConContexto(apuesta, part));
     }
 
     private Command ocultarConfirmacion() {

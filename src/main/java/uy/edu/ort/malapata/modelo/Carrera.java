@@ -1,11 +1,17 @@
 package uy.edu.ort.malapata.modelo;
 
 import uy.edu.ort.malapata.excepciones.MalaPataException;
+import uy.edu.ort.malapata.fachada.Fachada;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import uy.edu.ort.malapata.dto.ApuestaDto;
+import uy.edu.ort.malapata.observador.Observable;
 
-public class Carrera {
+public class Carrera extends Observable {
+
+    public enum Eventos {
+        cambioEstado, nuevaApuesta
+    }
 
     private int numero;
     private String nombre;
@@ -54,6 +60,8 @@ public class Carrera {
 
     protected void cambiarEstado(EstadoCarrera nuevoEstado) {
         this.estado = nuevoEstado;
+        avisar(Eventos.cambioEstado);
+        Fachada.getInstancia().avisar(Fachada.Eventos.cambioEstadoCarrera);
     }
 
     public void abrir() throws MalaPataException {
@@ -92,6 +100,8 @@ public class Carrera {
         participacion.agregarApuesta(apuesta);
         recalcularDividendos(comision);
         estado.actualizarEstado();
+        avisar(Eventos.nuevaApuesta);
+        Fachada.getInstancia().avisar(Fachada.Eventos.cambioEstadoCarrera);
     }
 
     public double getTotalApostado() {

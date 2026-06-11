@@ -16,39 +16,41 @@ import org.springframework.http.MediaType;
 @RestController
 @Scope("session")
 @RequestMapping("/admin")
-
-
-
 public class PresentadorAdmin implements Observador {
 
-    private final Fachada fachada;
     private Jornada jornadaActual       = null;
     private Carrera carreraSeleccionada = null;
 
     private final ConexionNavegador conexionNavegador;
 
-    public PresentadorAdmin(Fachada fachada, ConexionNavegador conexionNavegador) {
-        this.fachada = fachada;
+    public PresentadorAdmin(ConexionNavegador conexionNavegador) {
         this.conexionNavegador = conexionNavegador;
-        this.fachada.agregarObservador(this);
     }
 
     @GetMapping(value = "/registrarSSE", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-public SseEmitter registrarSSE() {
-    conexionNavegador.conectarSSE();
-    return conexionNavegador.getConexionSSE();
-}
+    public SseEmitter registrarSSE() {
+        conexionNavegador.conectarSSE();
+        return conexionNavegador.getConexionSSE();
+    }
 
     @GetMapping("/vistaConectada")
     public Commands vistaConectada(
             @SessionAttribute(name = "usuarioAdmin", required = false) Administrador admin) {
         if (admin == null)
             return Commands.create(new Command("usuarioNoAutenticado", "index.html"));
-        jornadaActual = fachada.getJornadaActual();
+        
+        Fachada.getInstancia().agregarObservador(this);
+        
+        jornadaActual = Fachada.getInstancia().getJornadaActual();
         return Commands.create(
                 jornada(jornadaActual),
-                habilitarNavegacion(fachada.getJornadaAnterior(jornadaActual) != null,
-                        fachada.getJornadaSiguiente(jornadaActual) != null));
+                habilitarNavegacion(Fachada.getInstancia().getJornadaAnterior(jornadaActual) != null,
+                        Fachada.getInstancia().getJornadaSiguiente(jornadaActual) != null));
+    }
+
+    @PostMapping("/vistaCerrada")
+    public void vistaCerrada(){
+        Fachada.getInstancia().quitarObservador(this);
     }
 
     @PostMapping("/jornadaAnterior")
@@ -56,15 +58,15 @@ public SseEmitter registrarSSE() {
             @SessionAttribute(name = "usuarioAdmin", required = false) Administrador admin)
             throws MalaPataException {
         validarSesion(admin);
-        Jornada anterior = fachada.getJornadaAnterior(jornadaActual);
+        Jornada anterior = Fachada.getInstancia().getJornadaAnterior(jornadaActual);
         if (anterior == null)
             throw new MalaPataException("No hay jornada anterior.");
         jornadaActual       = anterior;
         carreraSeleccionada = null;
         return Commands.create(
                 jornada(jornadaActual),
-                habilitarNavegacion(fachada.getJornadaAnterior(jornadaActual) != null,
-                        fachada.getJornadaSiguiente(jornadaActual) != null),
+                habilitarNavegacion(Fachada.getInstancia().getJornadaAnterior(jornadaActual) != null,
+                        Fachada.getInstancia().getJornadaSiguiente(jornadaActual) != null),
                 ocultarDetalleCarrera());
     }
 
@@ -73,15 +75,15 @@ public SseEmitter registrarSSE() {
             @SessionAttribute(name = "usuarioAdmin", required = false) Administrador admin)
             throws MalaPataException {
         validarSesion(admin);
-        Jornada siguiente = fachada.getJornadaSiguiente(jornadaActual);
+        Jornada siguiente = Fachada.getInstancia().getJornadaSiguiente(jornadaActual);
         if (siguiente == null)
             throw new MalaPataException("No hay jornada siguiente.");
         jornadaActual       = siguiente;
         carreraSeleccionada = null;
         return Commands.create(
                 jornada(jornadaActual),
-                habilitarNavegacion(fachada.getJornadaAnterior(jornadaActual) != null,
-                        fachada.getJornadaSiguiente(jornadaActual) != null),
+                habilitarNavegacion(Fachada.getInstancia().getJornadaAnterior(jornadaActual) != null,
+                        Fachada.getInstancia().getJornadaSiguiente(jornadaActual) != null),
                 ocultarDetalleCarrera());
     }
 
@@ -90,7 +92,7 @@ public SseEmitter registrarSSE() {
             @SessionAttribute(name = "usuarioAdmin", required = false) Administrador admin,
             @RequestParam int numero) throws MalaPataException {
         validarSesion(admin);
-        carreraSeleccionada = fachada.buscarCarrera(jornadaActual, numero);
+        carreraSeleccionada = Fachada.getInstancia().buscarCarrera(jornadaActual, numero);
         if (carreraSeleccionada == null)
             throw new MalaPataException("Carrera no encontrada.");
         return Commands.create(detalleCarrera(carreraSeleccionada));
@@ -102,10 +104,10 @@ public SseEmitter registrarSSE() {
             throws MalaPataException {
         validarSesion(admin);
         validarCarreraSeleccionada();
-        fachada.abrirCarrera(jornadaActual, carreraSeleccionada.getNumero());
+        Fachada.getInstancia().abrirCarrera(jornadaActual, carreraSeleccionada.getNumero());
         return Commands.create(
                 jornada(jornadaActual),
-                detalleCarrera(fachada.buscarCarrera(jornadaActual, carreraSeleccionada.getNumero())),
+                detalleCarrera(Fachada.getInstancia().buscarCarrera(jornadaActual, carreraSeleccionada.getNumero())),
                 mensaje("Carrera abierta correctamente."));
     }
 
@@ -115,10 +117,10 @@ public SseEmitter registrarSSE() {
             throws MalaPataException {
         validarSesion(admin);
         validarCarreraSeleccionada();
-        fachada.cerrarCarrera(jornadaActual, carreraSeleccionada.getNumero());
+        Fachada.getInstancia().cerrarCarrera(jornadaActual, carreraSeleccionada.getNumero());
         return Commands.create(
                 jornada(jornadaActual),
-                detalleCarrera(fachada.buscarCarrera(jornadaActual, carreraSeleccionada.getNumero())),
+                detalleCarrera(Fachada.getInstancia().buscarCarrera(jornadaActual, carreraSeleccionada.getNumero())),
                 mensaje("Carrera cerrada correctamente."));
     }
 
@@ -128,10 +130,10 @@ public SseEmitter registrarSSE() {
             @RequestParam int numeroGanador) throws MalaPataException {
         validarSesion(admin);
         validarCarreraSeleccionada();
-        fachada.finalizarCarrera(jornadaActual, carreraSeleccionada.getNumero(), numeroGanador);
+        Fachada.getInstancia().finalizarCarrera(jornadaActual, carreraSeleccionada.getNumero(), numeroGanador);
         return Commands.create(
                 jornada(jornadaActual),
-                detalleCarrera(fachada.buscarCarrera(jornadaActual, carreraSeleccionada.getNumero())),
+                detalleCarrera(Fachada.getInstancia().buscarCarrera(jornadaActual, carreraSeleccionada.getNumero())),
                 mensaje("Carrera finalizada correctamente."));
     }
 
@@ -141,12 +143,12 @@ public SseEmitter registrarSSE() {
     }
 
     private Command jornada(Jornada j) {
-        int idJornada = fachada.getIdJornada(j);
+        int idJornada = Fachada.getInstancia().getIdJornada(j);
         return new Command("jornada", j != null ? new JornadaDto(j, idJornada) : null);
     }
 
     private Command detalleCarrera(Carrera c) {
-        int idJornada = fachada.getIdJornada(jornadaActual);
+        int idJornada = Fachada.getInstancia().getIdJornada(jornadaActual);
         return new Command("detalleCarrera", new CarreraDto(c, jornadaActual, idJornada));
     }
 
@@ -167,12 +169,21 @@ public SseEmitter registrarSSE() {
             throw new MalaPataException("No hay carrera seleccionada.");
     }
 
-@Override
-public void actualizar(Object evento, Observable origen) {
-    if (Fachada.Eventos.cambioEstadoCarrera.equals(evento) && jornadaActual != null) {
-        conexionNavegador.enviarJSON(Commands.create(
-                jornada(jornadaActual)
-        ));
+ @Override
+    public void actualizar(Object evento, Observable origen) {
+        if (Fachada.Eventos.cambioEstadoCarrera.equals(evento) && jornadaActual != null) {
+            
+            if (carreraSeleccionada != null) {
+                conexionNavegador.enviarJSON(Commands.create(
+                        jornada(jornadaActual),
+                        detalleCarrera(Fachada.getInstancia().buscarCarrera(jornadaActual, carreraSeleccionada.getNumero()))
+                ));
+            } else {
+
+                conexionNavegador.enviarJSON(Commands.create(
+                        jornada(jornadaActual)
+                ));
+            }
+        }
     }
-}
 }
