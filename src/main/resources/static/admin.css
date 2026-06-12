@@ -167,6 +167,35 @@ button:disabled {
   display: none !important;
 }
 
+/* Action button variants */
+.btn-open {
+  background: #00b050; /* green */
+  color: white;
+}
+.btn-close {
+  background: #f4a93a; /* yellow/orange */
+  color: #102023;
+}
+.btn-finalize {
+  background: #e03b3b; /* red */
+  color: white;
+}
+
+/* Message / toast area */
+.message-area { margin-top: 12px; }
+.message-area .toast {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: var(--color-text-primary);
+}
+
+.detail-header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.detalle-meta { margin-bottom: 12px; color: var(--color-text-secondary); }
+.finish-box { display:flex; gap:8px; align-items:center; margin:12px 0; }
+.finish-box select { min-width: 220px; }
+
 /* ========== TABLE STYLES ========== */
 
 table {

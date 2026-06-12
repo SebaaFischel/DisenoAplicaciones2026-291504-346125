@@ -158,6 +158,7 @@
 
     const view = dispatcher.registerView('jugador', {
       urlInicio: '/jugador/vistaConectada',
+      urlCierre: '/jugador/vistaCerrada',
       onError: (status, texto) => mostrarMensaje('Error ' + status + ': ' + texto),
       onException: (msg) => mostrarMensaje(msg)
     });

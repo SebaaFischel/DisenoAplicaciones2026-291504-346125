@@ -11,7 +11,7 @@
 
   <main class="page">
     <section class="login-shell">
-      <article class="card">
+      <article class="card tab-panel" id="panelJugador">
         <h1 class="main-title">MalaPata</h1>
         <h2>Ingreso de Jugador</h2>
         <p>Accede para ver carreras, modalidades y gestionar tus apuestas.</p>
@@ -24,11 +24,11 @@
             <label for="contrasenaJugador">Contraseña</label>
             <input id="contrasenaJugador" name="contrasena" type="password" required>
           </div>
-          <button type="submit">Ingresar como jugador</button>
+          <button type="submit">Ingresar</button>
         </form>
       </article>
 
-      <article class="card">
+      <article class="card tab-panel" id="panelAdmin">
         <h1 class="main-title">Administrador</h1>
         <h2>Ingreso Administrativo</h2>
         <p>Gestiona jornadas y estado de las carreras.</p>
@@ -41,7 +41,7 @@
             <label for="contrasenia">Contraseña</label>
             <input id="contrasenia" name="contrasenia" type="password" required>
           </div>
-          <button type="submit">Ingresar como admin</button>
+          <button type="submit">Ingresar</button>
         </form>
         <p class="footer-note">Si no tienes sesion activa, seras redirigido aqui automaticamente.</p>
       </article>
@@ -62,6 +62,7 @@
 
     const view = dispatcher.registerView('index', {
       urlInicio: '/login/vistaConectada',
+      urlCierre: '/login/vistaCerrada',
       onError: (status, texto) => mostrarMensaje('Error ' + status + ': ' + texto),
       onException: (msg) => mostrarMensaje(msg)
     });
@@ -91,6 +92,8 @@
       e.preventDefault();
       dispatcher.submit('/login/loginAdmin', serializarFormulario('formLoginAdmin'));
     });
+
+    // Tabs removed: both login forms are visible (no dummy tab UI)
 
     dispatcher.startView(view);
   </script>

@@ -38,21 +38,29 @@
     </section>
 
     <section id="panelDetalleCarrera" class="card hidden">
-      <h2>Detalle de carrera seleccionada</h2>
+      <div class="detail-header">
+        <div>
+          <h2 id="detalleTitulo">Detalle de carrera seleccionada</h2>
+          <div id="detalleMeta" class="badge"></div>
+        </div>
+        <div class="actions">
+          <button id="btnAbrirCarrera" type="button" class="btn-open">Abrir Carrera</button>
+          <button id="btnCerrarCarrera" type="button" class="btn-close">Cerrar Carrera</button>
+        </div>
+      </div>
+
       <div id="detalleCarrera"></div>
-      <h3>Participaciones</h3>
+
+      <div class="finish-box">
+        <label for="selectGanador">Seleccionar caballo ganador:</label>
+        <select id="selectGanador"><option value="">— Elegir caballo —</option></select>
+        <button id="btnFinalizarCarrera" type="button" class="btn-finalize">Finalizar Carrera y Pagar</button>
+      </div>
+
+      <h3>Caballos Participantes</h3>
       <div id="tablaParticipaciones"></div>
-      <div class="actions" style="margin-top: 12px;">
-        <button id="btnAbrirCarrera" type="button">Abrir carrera</button>
-        <button id="btnCerrarCarrera" type="button">Cerrar carrera</button>
-      </div>
-      <div class="field" style="margin-top: 12px;">
-        <label for="numeroGanador">Numero de participacion ganadora</label>
-        <input id="numeroGanador" type="number" min="1" step="1">
-      </div>
-      <div class="actions" style="margin-top: 10px;">
-        <button id="btnFinalizarCarrera" type="button">Finalizar carrera</button>
-      </div>
+
+      <div id="mensajeAdmin" class="message-area"></div>
     </section>
   </main>
 
@@ -114,6 +122,7 @@
 
     const view = dispatcher.registerView('admin', {
       urlInicio: '/admin/vistaConectada',
+      urlCierre: '/admin/vistaCerrada',
       onError: (status, texto) => mostrarMensaje('Error ' + status + ': ' + texto),
       onException: (msg) => mostrarMensaje(msg)
     });
@@ -143,21 +152,34 @@
 
     view.handler('detalleCarrera', (carrera) => {
       panelDetalleCarrera.classList.remove('hidden');
-      detalleCarrera.innerHTML = crearTablaDesdeJson(carrera ? [{
-        numero: carrera.numero,
-        nombre: carrera.nombre,
-        estado: carrera.estado,
-        fechaJornada: carrera.fechaJornada,
-        totalApostado: carrera.totalApostado,
-        cantidadApuestas: carrera.cantidadApuestas,
-        ganador: carrera.ganador,
-        horaFinalizacion: carrera.horaFinalizacion
-      }] : []);
+      detalleCarrera.innerHTML = `<div class="detalle-meta"><strong>#${carrera.numero} — ${carrera.nombre}</strong> <span class="badge">${carrera.estado}</span></div>`;
 
-      tablaParticipaciones.innerHTML = crearTablaDesdeJson(
-        Array.isArray(carrera?.participaciones) ? carrera.participaciones : []
-      );
-      numeroGanador.value = '';
+      // populate participaciones table and winner select
+      const parts = Array.isArray(carrera?.participaciones) ? carrera.participaciones : [];
+      tablaParticipaciones.innerHTML = crearTablaDesdeJson(parts.map(p => ({
+        numero: p.numero,
+        nombreCaballo: p.nombreCaballo || p.caballo || '',
+        dividendo: p.dividendo !== undefined ? ('$ ' + p.dividendo) : 'S/E',
+        totalApostado: p.totalApostado !== undefined ? ('$ ' + p.totalApostado) : '$ 0',
+        cantidadApuestas: p.cantidadApuestas || 0
+      })));
+
+      // Fill winner select
+      const sel = document.getElementById('selectGanador');
+      sel.innerHTML = '<option value="">— Elegir caballo —</option>';
+      parts.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.numero;
+        opt.textContent = `#${p.numero} - ${p.nombreCaballo || p.caballo}`;
+        sel.appendChild(opt);
+      });
+
+      const titulo = document.getElementById('detalleTitulo');
+      titulo.textContent = `Carrera ${carrera.numero} — ${carrera.nombre}`;
+      const meta = document.getElementById('detalleMeta');
+      meta.textContent = `Total apostado: $${Number(carrera.totalApostado || 0)}`;
+
+      document.getElementById('mensajeAdmin').innerHTML = '';
     });
 
     view.handler('navegacion', (flags) => {
@@ -172,6 +194,9 @@
     });
 
     view.handler('mensaje', (texto) => {
+      // show in-page message area and modal
+      const area = document.getElementById('mensajeAdmin');
+      if (area) area.innerHTML = `<div class="toast">${texto}</div>`;
       mostrarMensaje(texto);
     });
 
@@ -192,9 +217,10 @@
     });
 
     btnFinalizarCarrera.addEventListener('click', () => {
-      const numero = Number(numeroGanador.value);
+      const sel = document.getElementById('selectGanador');
+      const numero = Number(sel.value);
       if (!Number.isInteger(numero) || numero <= 0) {
-        mostrarMensaje('Ingrese un numero ganador valido.');
+        mostrarMensaje('Seleccione un caballo ganador válido.');
         return;
       }
       dispatcher.submit('/admin/finalizarCarrera', 'numeroGanador=' + encodeURIComponent(numero));
