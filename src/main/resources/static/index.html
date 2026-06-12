@@ -62,7 +62,6 @@
 
     const view = dispatcher.registerView('index', {
       urlInicio: '/login/vistaConectada',
-      urlCierre: '/login/vistaCerrada',
       onError: (status, texto) => mostrarMensaje('Error ' + status + ': ' + texto),
       onException: (msg) => mostrarMensaje(msg)
     });

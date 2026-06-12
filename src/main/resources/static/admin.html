@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MalaPata - Administrador</title>
   <link rel="stylesheet" href="admin.css">
 </head>
+
 <body>
   <script src="/utilesVista.js"></script>
 
@@ -53,7 +55,9 @@
 
       <div class="finish-box">
         <label for="selectGanador">Seleccionar caballo ganador:</label>
-        <select id="selectGanador"><option value="">— Elegir caballo —</option></select>
+        <select id="selectGanador">
+          <option value="">— Elegir caballo —</option>
+        </select>
         <button id="btnFinalizarCarrera" type="button" class="btn-finalize">Finalizar Carrera y Pagar</button>
       </div>
 
@@ -218,11 +222,7 @@
 
     btnFinalizarCarrera.addEventListener('click', () => {
       const sel = document.getElementById('selectGanador');
-      const numero = Number(sel.value);
-      if (!Number.isInteger(numero) || numero <= 0) {
-        mostrarMensaje('Seleccione un caballo ganador válido.');
-        return;
-      }
+      const numero = Number(sel.value) || 0;
       dispatcher.submit('/admin/finalizarCarrera', 'numeroGanador=' + encodeURIComponent(numero));
     });
 
@@ -234,4 +234,5 @@
     dispatcher.connectSSE('/admin/registrarSSE');
   </script>
 </body>
+
 </html>
