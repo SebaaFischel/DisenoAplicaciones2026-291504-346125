@@ -47,7 +47,7 @@ public class Fachada extends Observable {
 
     public Carrera crearCarrera(Jornada jornada, String nombre) {
         return sistemaCarreras.crearCarrera(jornada, nombre);
-    }
+    } 
 
     public void agregarParticipacion(Carrera carrera, Participacion participacion) {
         sistemaCarreras.agregarParticipacion(carrera, participacion);

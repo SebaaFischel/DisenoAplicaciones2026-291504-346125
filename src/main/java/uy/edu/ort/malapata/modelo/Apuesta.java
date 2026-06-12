@@ -9,7 +9,7 @@ public abstract class Apuesta {
     protected double montoApostado;
     protected double dividendoCaballo;
     private Jugador jugador;
-    private EstadoApuesta estado;
+    private boolean liquidada = false;
     private double montoCobrado;
     private CalculadorDescuento calculadorDescuento;
     private CalculadorPremio calculadorPremio;
@@ -21,7 +21,6 @@ public abstract class Apuesta {
         this.montoApostado = montoApostado;
         this.calculadorDescuento = calculadorDescuento;
         this.calculadorPremio = calculadorPremio;
-        this.estado = new EstadoApuesta(EstadoApuesta.PENDIENTE);
     }
 
     public Jugador getJugador() {
@@ -40,23 +39,19 @@ public abstract class Apuesta {
         this.dividendoCaballo = dividendo;
     }
 
-    public EstadoApuesta getEstado() {
-        return estado;
-    }
-
     public double getMontoCobrado() {
         return montoCobrado;
     }
 
     public boolean isLiquidada() {
-        return estado.estaLiquidada();
+        return liquidada;
     }
 
     public double calcularDescuento() {
         return calculadorDescuento.calcular(montoApostado);
     }
 
-    public double calcularPremio(double dividendo,double totalApostadoAlCaballo) {
+    public double calcularPremio(double dividendo, double totalApostadoAlCaballo) {
         return calculadorPremio.calcular(montoApostado, dividendo, totalApostadoAlCaballo);
     }
 
@@ -76,6 +71,6 @@ public abstract class Apuesta {
         double pago = calculadorPremio.calcular(montoApostado, dividendoCierre, totalApostadoAlCaballo);
         jugador.acreditarGanancia(pago);
         this.montoCobrado = pago;
-        this.estado = new EstadoApuesta(EstadoApuesta.LIQUIDADA);
+        this.liquidada = true;
     }
 }

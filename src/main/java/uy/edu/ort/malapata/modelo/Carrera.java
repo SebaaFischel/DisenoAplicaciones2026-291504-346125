@@ -5,13 +5,8 @@ import uy.edu.ort.malapata.fachada.Fachada;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import uy.edu.ort.malapata.dto.ApuestaDto;
-import uy.edu.ort.malapata.observador.Observable;
 
-public class Carrera extends Observable {
-
-    public enum Eventos {
-        cambioEstado, nuevaApuesta
-    }
+public class Carrera {
 
     private int numero;
     private String nombre;
@@ -60,7 +55,6 @@ public class Carrera extends Observable {
 
     protected void cambiarEstado(EstadoCarrera nuevoEstado) {
         this.estado = nuevoEstado;
-        avisar(Eventos.cambioEstado);
         Fachada.getInstancia().avisar(Fachada.Eventos.cambioEstadoCarrera);
     }
 
@@ -100,7 +94,6 @@ public class Carrera extends Observable {
         participacion.agregarApuesta(apuesta);
         recalcularDividendos(comision);
         estado.actualizarEstado();
-        avisar(Eventos.nuevaApuesta);
         Fachada.getInstancia().avisar(Fachada.Eventos.cambioEstadoCarrera);
     }
 
